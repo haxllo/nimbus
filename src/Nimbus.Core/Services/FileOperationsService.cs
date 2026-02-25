@@ -228,7 +228,7 @@ public sealed class FileOperationsService : IFileOperationsService
     {
         return exception switch
         {
-            System.OperationCanceledException or Microsoft.VisualBasic.FileIO.OperationCanceledException => FileOperationResult.Failure(
+            System.OperationCanceledException => FileOperationResult.Failure(
                 FileOperationErrorCode.Cancelled,
                 $"The {operation} operation was cancelled."),
 
