@@ -64,6 +64,26 @@
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Foreground" Value="{StaticResource FinderSubtleTextBrush}" />
         </Style>
+
+        <Style x:Key="FinderToolbarTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Padding" Value="10,5" />
+            <Setter Property="Background" Value="{StaticResource FinderPanelElevatedBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource FinderDividerBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="FinderToolbarComboStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Padding" Value="8,3" />
+            <Setter Property="Background" Value="{StaticResource FinderPanelElevatedBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource FinderDividerBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
     </Page.Resources>
     <Page.KeyboardAccelerators>
         <KeyboardAccelerator Key="Left" Modifiers="Menu" Invoked="OnBackAcceleratorInvoked" />
@@ -99,29 +119,46 @@
             <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Margin="12,10,12,6" Padding="10,8" Background="{StaticResource FinderChromeBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="13">
                 <Grid RowSpacing="8">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="22" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <Grid Grid.Row="0" ColumnSpacing="8">
+
+                    <Border x:Name="TitleBarDragRegion" Grid.Row="0" Background="Transparent" CornerRadius="6">
+                        <Grid>
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Foreground="{StaticResource FinderSubtleTextBrush}"
+                                Opacity="0.75"
+                                Text="Nimbus" />
+                        </Grid>
+                    </Border>
+
+                    <Grid Grid.Row="1" ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="2*" />
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel x:Name="TitleBarDragRegion" Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                             <Ellipse Width="11" Height="11" Fill="#FF5F57" />
                             <Ellipse Width="11" Height="11" Fill="#FEBC2E" />
                             <Ellipse Width="11" Height="11" Fill="#28C840" />
                         </StackPanel>
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,2,0">
-                            <TextBlock Text="Nimbus" FontWeight="SemiBold" Foreground="{StaticResource FinderTitleTextBrush}" />
-                            <TextBlock Text="  Finder View" Foreground="{StaticResource FinderSubtleTextBrush}" />
-                        </StackPanel>
+
+                        <TextBlock
+                            Grid.Column="1"
+                            Margin="6,0,2,0"
+                            VerticalAlignment="Center"
+                            FontWeight="SemiBold"
+                            Foreground="{StaticResource FinderTitleTextBrush}"
+                            Text="Nimbus" />
 
                         <Button x:Name="BackButton" Grid.Column="2" Click="OnBackClicked" ToolTipService.ToolTip="Back (Alt+Left)" Style="{StaticResource FinderNavButtonStyle}">
                             <FontIcon Glyph="&#xE72B;" FontFamily="Segoe MDL2 Assets" />
@@ -137,28 +174,22 @@
                             x:Name="PathBox"
                             Grid.Column="5"
                             Margin="8,0,8,0"
-                            MinWidth="240"
-                            Padding="10,5"
-                            Background="{StaticResource FinderPanelElevatedBrush}"
-                            BorderBrush="{StaticResource FinderDividerBrush}"
-                            CornerRadius="8"
+                            MinWidth="220"
+                            Style="{StaticResource FinderToolbarTextBoxStyle}"
                             PlaceholderText="Path"
                             KeyDown="OnPathBoxKeyDown" />
                         <TextBox
                             x:Name="SearchBox"
                             Grid.Column="6"
-                            MinWidth="180"
-                            Padding="10,5"
-                            Background="{StaticResource FinderPanelElevatedBrush}"
-                            BorderBrush="{StaticResource FinderDividerBrush}"
-                            CornerRadius="8"
+                            Width="280"
+                            Style="{StaticResource FinderToolbarTextBoxStyle}"
                             PlaceholderText="Search in current folder"
                             KeyDown="OnSearchBoxKeyDown"
                             ToolTipService.ToolTip="Search (Ctrl+F)" />
                     </Grid>
 
                     <ScrollViewer
-                        Grid.Row="1"
+                        Grid.Row="2"
                         HorizontalScrollBarVisibility="Auto"
                         HorizontalScrollMode="Enabled"
                         VerticalScrollBarVisibility="Disabled"
@@ -167,13 +198,13 @@
                             <Button x:Name="NewFolderButton" Content="New Folder" Click="OnNewFolderClicked" ToolTipService.ToolTip="New Folder (Ctrl+N)" Style="{StaticResource FinderToolbarButtonStyle}" />
                             <Button x:Name="RenameButton" Content="Rename" Click="OnRenameClicked" ToolTipService.ToolTip="Rename (F2)" Style="{StaticResource FinderToolbarButtonStyle}" />
                             <Button x:Name="DeleteButton" Content="Delete" Click="OnDeleteClicked" ToolTipService.ToolTip="Delete (Delete)" Style="{StaticResource FinderToolbarButtonStyle}" />
-                            <ComboBox x:Name="ViewModeSelector" Width="160" Padding="8,3" CornerRadius="8" Background="{StaticResource FinderPanelElevatedBrush}" BorderBrush="{StaticResource FinderDividerBrush}" SelectionChanged="OnViewModeSelectionChanged" ToolTipService.ToolTip="View mode (Finder-style)">
+                            <ComboBox x:Name="ViewModeSelector" Width="160" Style="{StaticResource FinderToolbarComboStyle}" SelectionChanged="OnViewModeSelectionChanged" ToolTipService.ToolTip="View mode (Finder-style)">
                                 <x:String>List</x:String>
                                 <x:String>Icon</x:String>
                                 <x:String>Column</x:String>
                                 <x:String>Gallery</x:String>
                             </ComboBox>
-                            <ComboBox x:Name="SortSelector" Width="210" Padding="8,3" CornerRadius="8" Background="{StaticResource FinderPanelElevatedBrush}" BorderBrush="{StaticResource FinderDividerBrush}" SelectionChanged="OnSortSelectionChanged" ToolTipService.ToolTip="Sort order">
+                            <ComboBox x:Name="SortSelector" Width="210" Style="{StaticResource FinderToolbarComboStyle}" SelectionChanged="OnSortSelectionChanged" ToolTipService.ToolTip="Sort order">
                                 <x:String>Name (A-Z)</x:String>
                                 <x:String>Name (Z-A)</x:String>
                                 <x:String>Date Modified (Oldest)</x:String>
