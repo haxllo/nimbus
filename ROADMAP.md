@@ -76,6 +76,7 @@ Status:
 - [x] Conflict-resolution prompts for create-folder and rename flows.
 - [x] Rich status feedback with severity levels (InfoBar).
 - [x] Manifest naming polish (`DisplayName`: `Nimbus`, description: `Nimbus File Explorer`).
+- [x] Added regression-oriented service tests for large-folder enumeration/search consistency.
 - [ ] Packaging and branding polish (`Package.appxmanifest`, assets).
 
 Exit Criteria:
@@ -91,4 +92,4 @@ Exit Criteria:
 1. [x] Add integration-style tests around `MainPageViewModel` for create/rename/delete command flows.
 2. [x] Add help text/tooltips listing keyboard shortcuts (`Ctrl+N`, `F5`, `F2`, `Ctrl+F`, `Alt+Left`, `Alt+Right`).
 3. [ ] Package/branding polish for V1 (`Package.appxmanifest`, final icons/app name; manifest text completed).
-4. [ ] Run full regression on large folders and permission boundaries (`docs/regression-checklist-v1.md`).
+4. [ ] Run full regression on large folders and permission boundaries (`docs/regression-checklist-v1.md`; automated large-folder coverage added).

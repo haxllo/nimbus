@@ -37,6 +37,7 @@ namespace Nimbus.App
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
             window ??= new Window();
+            window.Title = "Nimbus";
 
             if (window.Content is not Frame rootFrame)
             {
