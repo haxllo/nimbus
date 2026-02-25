@@ -40,7 +40,7 @@
 3. Confirm root path opens, search query is executed, and result list updates.
 4. Verify failure message appears when saved-search root path is unavailable.
 
-### Task 5E: Replace Placeholder Tags with Real Tag Model (Pending)
+### Task 5E: Replace Placeholder Tags with Real Tag Model (Completed)
 **Files:**
 - Create: `src/Nimbus.Core/Models/FileTagModel.cs`
 - Create: `src/Nimbus.Core/Services/ITagService.cs`

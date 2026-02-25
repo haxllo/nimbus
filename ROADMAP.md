@@ -101,7 +101,7 @@ Status:
 - [x] Task 3: Preview pane + quick look (`IFilePreviewService` + selection preview loading + `Space` quick look first pass, re-integrated after rollback).
 - [x] Task 4: Tabbed navigation (`TabsViewModel`, tab strip, `Ctrl+T`/`Ctrl+W`/`Ctrl+Tab`, re-integrated after rollback).
 - [x] Task 5A: Smart collections (saved-search service + sidebar section + execute on selection).
-- [ ] Task 5B: Dynamic tags (replace placeholder tags with model/service + tests).
+- [x] Task 5B: Dynamic tags (replace placeholder tags with model/service + tests).
 - [ ] Task 5C: Smart-collection manual verification (`docs/regression-checklist-v2-finder-parity.md`).
 - [ ] Task 6: Finder parity regression and acceptance pass (`docs/regression-checklist-v2-finder-parity.md`).
 

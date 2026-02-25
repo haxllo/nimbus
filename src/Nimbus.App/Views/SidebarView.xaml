@@ -41,10 +41,17 @@
             </ListView.ItemTemplate>
         </ListView>
         <TextBlock Grid.Row="4" Text="Tags" FontWeight="SemiBold" Margin="8,0,8,8" />
-        <StackPanel Grid.Row="5" Spacing="6" Margin="12,0,12,0">
-            <TextBlock Text="Work" Opacity="0.85" />
-            <TextBlock Text="Personal" Opacity="0.85" />
-            <TextBlock Text="Shared" Opacity="0.85" />
-        </StackPanel>
+        <ListView
+            x:Name="TagsList"
+            Grid.Row="5"
+            ItemsSource="{Binding Tags}"
+            SelectionChanged="OnTagSelectionChanged"
+            MaxHeight="140">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding DisplayName}" Margin="12,6" TextTrimming="CharacterEllipsis" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </UserControl>

@@ -6,21 +6,31 @@ namespace Nimbus.Core.ViewModels;
 public sealed class SidebarViewModel
 {
     private readonly ISavedSearchService _savedSearchService;
+    private readonly ITagService _tagService;
 
-    public SidebarViewModel(ISavedSearchService savedSearchService)
+    public SidebarViewModel(ISavedSearchService savedSearchService, ITagService tagService)
     {
         _savedSearchService = savedSearchService;
+        _tagService = tagService;
         Locations = BuildDefaultLocations();
         SavedSearches = _savedSearchService.GetAll();
+        Tags = _tagService.GetAll();
     }
 
     public IReadOnlyList<SidebarLocation> Locations { get; }
 
     public IReadOnlyList<SavedSearchModel> SavedSearches { get; private set; }
 
+    public IReadOnlyList<FileTagModel> Tags { get; private set; }
+
     public void RefreshSavedSearches()
     {
         SavedSearches = _savedSearchService.GetAll();
+    }
+
+    public void RefreshTags()
+    {
+        Tags = _tagService.GetAll();
     }
 
     private static IReadOnlyList<SidebarLocation> BuildDefaultLocations()

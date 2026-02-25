@@ -95,7 +95,8 @@ public class MainPageViewModelOperationsTests
         var savedSearchService = new SavedSearchService(
             Path.Combine(Path.GetTempPath(), $"nimbus-main-vm-saved-{Guid.NewGuid():N}.json"),
             seedDefaults: false);
-        var sidebarViewModel = new SidebarViewModel(savedSearchService);
+        var tagService = new TagService();
+        var sidebarViewModel = new SidebarViewModel(savedSearchService, tagService);
         var tabsViewModel = new TabsViewModel();
         var fileOperationsService = new FileOperationsService();
         return new MainPageViewModel(

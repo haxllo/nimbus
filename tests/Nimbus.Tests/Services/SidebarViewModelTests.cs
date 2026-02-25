@@ -9,7 +9,7 @@ public class SidebarViewModelTests
     [Fact]
     public void Sidebar_Includes_Known_Folders()
     {
-        var vm = new SidebarViewModel(new InMemorySavedSearchService());
+        var vm = new SidebarViewModel(new InMemorySavedSearchService(), new InMemoryTagService());
         Assert.Contains(vm.Locations, l => l.Id == "Documents");
     }
 
@@ -23,10 +23,30 @@ public class SidebarViewModelTests
                 DisplayName = "Reports",
                 RootPath = @"C:\Temp",
                 Query = "*.csv"
-            }));
+            }),
+            new InMemoryTagService());
 
         var saved = Assert.Single(vm.SavedSearches);
         Assert.Equal("Reports", saved.DisplayName);
+    }
+
+    [Fact]
+    public void Sidebar_Exposes_Tags_From_Service()
+    {
+        var vm = new SidebarViewModel(
+            new InMemorySavedSearchService(),
+            new InMemoryTagService(
+                new FileTagModel
+                {
+                    Id = "work",
+                    DisplayName = "Work",
+                    RootPath = @"C:\Temp",
+                    Query = "*.docx"
+                }));
+
+        var tag = Assert.Single(vm.Tags);
+        Assert.Equal("Work", tag.DisplayName);
+        Assert.Equal("*.docx", tag.Query);
     }
 
     private sealed class InMemorySavedSearchService : ISavedSearchService
@@ -55,5 +75,20 @@ public class SidebarViewModelTests
 
         public SavedSearchModel? Resolve(string id) =>
             _searches.FirstOrDefault(item => string.Equals(item.Id, id, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private sealed class InMemoryTagService : ITagService
+    {
+        private readonly List<FileTagModel> _tags;
+
+        public InMemoryTagService(params FileTagModel[] initialTags)
+        {
+            _tags = initialTags.ToList();
+        }
+
+        public IReadOnlyList<FileTagModel> GetAll() => _tags.ToArray();
+
+        public FileTagModel? Resolve(string id) =>
+            _tags.FirstOrDefault(item => string.Equals(item.Id, id, StringComparison.OrdinalIgnoreCase));
     }
 }

@@ -30,6 +30,7 @@ public partial class MainPage : Page
 
         Sidebar.LocationSelected += OnSidebarLocationSelected;
         Sidebar.SavedSearchSelected += OnSidebarSavedSearchSelected;
+        Sidebar.TagSelected += OnSidebarTagSelected;
         FileList.ItemInvoked += OnFileItemInvoked;
         FileList.ItemSelectionChanged += OnFileItemSelectionChanged;
         _viewModel.Tabs.Tabs.CollectionChanged += OnTabsCollectionChanged;
@@ -93,6 +94,22 @@ public partial class MainPage : Page
 
         SearchBox.Text = savedSearch.Query;
         await ExecuteSearchAsync(savedSearch.RootPath, savedSearch.Query, savedSearch.DisplayName);
+    }
+
+    private async void OnSidebarTagSelected(object? sender, FileTagModel tag)
+    {
+        CancelActiveSearch();
+
+        var opened = await _viewModel.NavigateToAsync(tag.RootPath);
+        UpdateNavigationUi();
+        if (!opened)
+        {
+            SetStatus($"Unable to open tag location: {tag.RootPath}", InfoBarSeverity.Error);
+            return;
+        }
+
+        SearchBox.Text = tag.Query;
+        await ExecuteSearchAsync(tag.RootPath, tag.Query, $"Tag: {tag.DisplayName}");
     }
 
     private async void OnFileItemSelectionChanged(object? sender, EventArgs e)
@@ -917,6 +934,11 @@ public partial class MainPage : Page
 
     private void OnPageUnloaded(object sender, RoutedEventArgs e)
     {
+        Sidebar.LocationSelected -= OnSidebarLocationSelected;
+        Sidebar.SavedSearchSelected -= OnSidebarSavedSearchSelected;
+        Sidebar.TagSelected -= OnSidebarTagSelected;
+        FileList.ItemInvoked -= OnFileItemInvoked;
+        FileList.ItemSelectionChanged -= OnFileItemSelectionChanged;
         _viewModel.Tabs.Tabs.CollectionChanged -= OnTabsCollectionChanged;
         _viewModel.Tabs.PropertyChanged -= OnTabsPropertyChanged;
         CancelActiveSearch();
