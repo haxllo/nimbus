@@ -185,7 +185,10 @@ public class MainPageViewModelTests
         var filePreviewService = new FilePreviewService();
         var fileListViewModel = new FileListViewModel(shellItemService, viewPreferenceService, filePreviewService);
         var navigationViewModel = new NavigationViewModel(new NavigationService());
-        var sidebarViewModel = new SidebarViewModel();
+        var savedSearchService = new SavedSearchService(
+            Path.Combine(Path.GetTempPath(), $"nimbus-main-vm-saved-{Guid.NewGuid():N}.json"),
+            seedDefaults: false);
+        var sidebarViewModel = new SidebarViewModel(savedSearchService);
         var tabsViewModel = new TabsViewModel();
         var fileOperationsService = new FileOperationsService();
         return new MainPageViewModel(

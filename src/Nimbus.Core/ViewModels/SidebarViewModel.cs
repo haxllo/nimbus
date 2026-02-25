@@ -1,15 +1,27 @@
 using Nimbus.Core.Models;
+using Nimbus.Core.Services;
 
 namespace Nimbus.Core.ViewModels;
 
 public sealed class SidebarViewModel
 {
-    public SidebarViewModel()
+    private readonly ISavedSearchService _savedSearchService;
+
+    public SidebarViewModel(ISavedSearchService savedSearchService)
     {
+        _savedSearchService = savedSearchService;
         Locations = BuildDefaultLocations();
+        SavedSearches = _savedSearchService.GetAll();
     }
 
     public IReadOnlyList<SidebarLocation> Locations { get; }
+
+    public IReadOnlyList<SavedSearchModel> SavedSearches { get; private set; }
+
+    public void RefreshSavedSearches()
+    {
+        SavedSearches = _savedSearchService.GetAll();
+    }
 
     private static IReadOnlyList<SidebarLocation> BuildDefaultLocations()
     {

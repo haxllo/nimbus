@@ -76,6 +76,7 @@ namespace Nimbus.App
             services.AddSingleton<ISearchService, SearchService>();
             services.AddSingleton<IViewPreferenceService, ViewPreferenceService>();
             services.AddSingleton<IFilePreviewService, FilePreviewService>();
+            services.AddSingleton<ISavedSearchService, SavedSearchService>();
 
             services.AddSingleton<SidebarViewModel>();
             services.AddSingleton<FileListViewModel>();

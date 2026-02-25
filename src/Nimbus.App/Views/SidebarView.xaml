@@ -10,13 +10,15 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <TextBlock Text="Favorites" FontWeight="SemiBold" Margin="8,2,8,8" />
         <ListView
             x:Name="SidebarList"
             Grid.Row="1"
             ItemsSource="{Binding Locations}"
-            SelectionChanged="OnSelectionChanged"
+            SelectionChanged="OnLocationSelectionChanged"
             Margin="0,0,0,12">
             <ListView.ItemTemplate>
                 <DataTemplate>
@@ -24,8 +26,22 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-        <TextBlock Grid.Row="2" Text="Tags" FontWeight="SemiBold" Margin="8,0,8,8" />
-        <StackPanel Grid.Row="3" Spacing="6" Margin="12,0,12,0">
+        <TextBlock Grid.Row="2" Text="Smart Collections" FontWeight="SemiBold" Margin="8,0,8,8" />
+        <ListView
+            x:Name="SavedSearchList"
+            Grid.Row="3"
+            ItemsSource="{Binding SavedSearches}"
+            SelectionChanged="OnSavedSearchSelectionChanged"
+            Margin="0,0,0,12"
+            MaxHeight="140">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding DisplayName}" Margin="12,6" TextTrimming="CharacterEllipsis" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <TextBlock Grid.Row="4" Text="Tags" FontWeight="SemiBold" Margin="8,0,8,8" />
+        <StackPanel Grid.Row="5" Spacing="6" Margin="12,0,12,0">
             <TextBlock Text="Work" Opacity="0.85" />
             <TextBlock Text="Personal" Opacity="0.85" />
             <TextBlock Text="Shared" Opacity="0.85" />
