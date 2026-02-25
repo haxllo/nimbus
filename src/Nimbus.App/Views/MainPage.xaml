@@ -51,7 +51,7 @@
                 SelectionChanged="OnTabSelectionChanged">
                 <TabView.TabItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                        <TabViewItem Header="{Binding Title}" />
                     </DataTemplate>
                 </TabView.TabItemTemplate>
             </TabView>

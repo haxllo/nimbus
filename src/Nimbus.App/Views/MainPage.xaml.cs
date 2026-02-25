@@ -288,14 +288,14 @@ public partial class MainPage : Page
         SetStatus($"Closed tab: {tab.Title}.", InfoBarSeverity.Informational);
     }
 
-    private async void OnTabSelectionChanged(TabView sender, TabViewSelectionChangedEventArgs e)
+    private async void OnTabSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (_isSyncingTabSelection)
         {
             return;
         }
 
-        if (sender.SelectedItem is not ExplorerTabModel tab)
+        if (TabsControl.SelectedItem is not ExplorerTabModel tab)
         {
             return;
         }
