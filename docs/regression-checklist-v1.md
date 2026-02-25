@@ -9,12 +9,16 @@ Scope: Large folders and permission boundaries
 - Run Nimbus in unpackaged debug mode
 
 ## Fixture Setup
-1. Create a temp root folder, for example `C:\Temp\nimbus-regression`.
-2. Inside it, create:
+1. Recommended: generate fixtures with:
+```powershell
+pwsh -File .\scripts\setup-regression-fixtures.ps1 -CreateRestrictedFolder
+```
+2. Manual alternative: create a temp root folder, for example `C:\Temp\nimbus-regression`.
+3. Inside it, create:
 - `large-a` with at least 2,000 files and 200 subfolders.
 - `large-b` with at least 5,000 files mixed across nested directories.
 - `restricted` folder with denied read permission for the current user.
-3. Add files with mixed names/extensions (`.txt`, `.json`, `.png`) to test wildcard and plain text search.
+4. Add files with mixed names/extensions (`.txt`, `.json`, `.png`) to test wildcard and plain text search.
 
 ## Navigation and Rendering
 1. Open `large-a` using the path box and press Enter.
@@ -54,3 +58,8 @@ Scope: Large folders and permission boundaries
 - No application crash across all steps.
 - Status feedback shown for success and failure paths.
 - Navigation, search, and file operations stay consistent after failures.
+
+## Cleanup
+```powershell
+pwsh -File .\scripts\cleanup-regression-fixtures.ps1
+```

@@ -78,6 +78,7 @@ Status:
 - [x] Manifest naming polish (`DisplayName`: `Nimbus`, description: `Nimbus File Explorer`).
 - [x] Replaced default package assets with Nimbus-branded icons/splash art.
 - [x] Added regression-oriented service tests for large-folder enumeration/search consistency.
+- [x] Added regression fixture scripts (`scripts/setup-regression-fixtures.ps1`, `scripts/cleanup-regression-fixtures.ps1`).
 - [x] Packaging and branding polish (`Package.appxmanifest`, assets).
 
 Exit Criteria:
@@ -93,4 +94,4 @@ Exit Criteria:
 1. [x] Add integration-style tests around `MainPageViewModel` for create/rename/delete command flows.
 2. [x] Add help text/tooltips listing keyboard shortcuts (`Ctrl+N`, `F5`, `F2`, `Ctrl+F`, `Alt+Left`, `Alt+Right`).
 3. [x] Package/branding polish for V1 (`Package.appxmanifest`, final icons/app name).
-4. [ ] Run full regression on large folders and permission boundaries (`docs/regression-checklist-v1.md`; automated large-folder coverage added).
+4. [ ] Run full regression on large folders and permission boundaries (`docs/regression-checklist-v1.md`; fixture scripts and automated large-folder coverage added).
