@@ -265,33 +265,14 @@ public partial class MainPage : Page
         viewModel.FileList.SetViewModeForCurrentPath(selectedMode);
     }
 
-    private async void OnAddTabButtonClick(TabView sender, object args)
+    private async void OnNewTabButtonClicked(object sender, RoutedEventArgs e)
     {
         await OpenNewTabAsync();
     }
 
-    private async void OnTabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
+    private async void OnCloseTabButtonClicked(object sender, RoutedEventArgs e)
     {
-        var tab = args.Item as ExplorerTabModel;
-        if (tab is null && args.Item is TabViewItem tabViewItem)
-        {
-            tab = tabViewItem.DataContext as ExplorerTabModel;
-        }
-
-        if (tab is null)
-        {
-            return;
-        }
-
-        var success = await _viewModel.CloseTabAsync(tab.Id);
-        if (!success)
-        {
-            SetStatus("Cannot close the last tab.", InfoBarSeverity.Warning);
-            return;
-        }
-
-        UpdateNavigationUi();
-        SetStatus($"Closed tab: {tab.Title}.", InfoBarSeverity.Informational);
+        await CloseCurrentTabAsync();
     }
 
     private async void OnTabSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -301,7 +282,7 @@ public partial class MainPage : Page
             return;
         }
 
-        if (TabsControl.SelectedItem is not ExplorerTabModel tab)
+        if (TabSelector.SelectedItem is not ExplorerTabModel tab)
         {
             return;
         }
@@ -860,7 +841,7 @@ public partial class MainPage : Page
     private void UpdateTabSelection()
     {
         var activeTab = _viewModel.Tabs.ActiveTab;
-        if (activeTab is null || ReferenceEquals(TabsControl.SelectedItem, activeTab))
+        if (activeTab is null || ReferenceEquals(TabSelector.SelectedItem, activeTab))
         {
             return;
         }
@@ -868,7 +849,7 @@ public partial class MainPage : Page
         _isSyncingTabSelection = true;
         try
         {
-            TabsControl.SelectedItem = activeTab;
+            TabSelector.SelectedItem = activeTab;
         }
         finally
         {

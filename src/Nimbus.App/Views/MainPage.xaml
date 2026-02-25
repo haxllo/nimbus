@@ -37,18 +37,21 @@
                 <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
 
-            <TabView
-                x:Name="TabsControl"
-                Grid.Row="0"
-                Grid.Column="0"
-                Grid.ColumnSpan="3"
-                Margin="8,8,8,0"
-                CanCloseTabs="True"
-                IsAddTabButtonVisible="True"
-                TabItemsSource="{Binding Tabs.Tabs}"
-                AddTabButtonClick="OnAddTabButtonClick"
-                TabCloseRequested="OnTabCloseRequested"
-                SelectionChanged="OnTabSelectionChanged" />
+            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Padding="12,8,12,0" ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="220" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ComboBox
+                    x:Name="TabSelector"
+                    ItemsSource="{Binding Tabs.Tabs}"
+                    SelectionChanged="OnTabSelectionChanged"
+                    PlaceholderText="Tabs" />
+                <Button Grid.Column="1" Content="New Tab" Click="OnNewTabButtonClicked" />
+                <Button Grid.Column="2" Content="Close Tab" Click="OnCloseTabButtonClicked" />
+            </Grid>
 
             <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Padding="12" ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
