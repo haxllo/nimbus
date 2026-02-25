@@ -10,20 +10,58 @@ public sealed class FileListViewModel : INotifyPropertyChanged
 {
     private readonly IShellItemService _shellItemService;
     private readonly IViewPreferenceService _viewPreferenceService;
+    private readonly IFilePreviewService _filePreviewService;
     private string? _currentPath;
     private FileViewMode _currentViewMode = FileViewMode.List;
+    private ShellItemModel? _selectedItem;
+    private FilePreviewModel? _currentPreview;
 
     public FileListViewModel(
         IShellItemService shellItemService,
-        IViewPreferenceService viewPreferenceService)
+        IViewPreferenceService viewPreferenceService,
+        IFilePreviewService filePreviewService)
     {
         _shellItemService = shellItemService;
         _viewPreferenceService = viewPreferenceService;
+        _filePreviewService = filePreviewService;
     }
 
     public ObservableCollection<ShellItemModel> Items { get; } = new();
 
-    public ShellItemModel? SelectedItem { get; set; }
+    public ShellItemModel? SelectedItem
+    {
+        get => _selectedItem;
+        set
+        {
+            if (ReferenceEquals(_selectedItem, value))
+            {
+                return;
+            }
+
+            _selectedItem = value;
+            OnPropertyChanged();
+
+            if (_selectedItem is null)
+            {
+                CurrentPreview = null;
+            }
+        }
+    }
+
+    public FilePreviewModel? CurrentPreview
+    {
+        get => _currentPreview;
+        private set
+        {
+            if (ReferenceEquals(_currentPreview, value))
+            {
+                return;
+            }
+
+            _currentPreview = value;
+            OnPropertyChanged();
+        }
+    }
 
     public FileViewMode CurrentViewMode
     {
@@ -46,6 +84,8 @@ public sealed class FileListViewModel : INotifyPropertyChanged
     {
         _currentPath = path;
         CurrentViewMode = _viewPreferenceService.GetViewMode(path);
+        SelectedItem = null;
+        CurrentPreview = null;
 
         Items.Clear();
 
@@ -66,6 +106,30 @@ public sealed class FileListViewModel : INotifyPropertyChanged
         }
 
         _viewPreferenceService.SetViewMode(_currentPath, viewMode);
+    }
+
+    public async Task LoadPreviewForSelectionAsync(CancellationToken cancellationToken = default)
+    {
+        var selectedPath = SelectedItem?.Path;
+        if (string.IsNullOrWhiteSpace(selectedPath))
+        {
+            CurrentPreview = null;
+            return;
+        }
+
+        var preview = await _filePreviewService.GetPreviewAsync(selectedPath, cancellationToken);
+
+        if (!string.Equals(SelectedItem?.Path, selectedPath, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        CurrentPreview = preview;
+    }
+
+    public void ClearPreview()
+    {
+        CurrentPreview = null;
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>

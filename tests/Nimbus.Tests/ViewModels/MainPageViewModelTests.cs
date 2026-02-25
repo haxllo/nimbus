@@ -106,7 +106,8 @@ public class MainPageViewModelTests
     {
         var shellItemService = new ShellItemService();
         var viewPreferenceService = new ViewPreferenceService();
-        var fileListViewModel = new FileListViewModel(shellItemService, viewPreferenceService);
+        var filePreviewService = new FilePreviewService();
+        var fileListViewModel = new FileListViewModel(shellItemService, viewPreferenceService, filePreviewService);
         var navigationViewModel = new NavigationViewModel(new NavigationService());
         var sidebarViewModel = new SidebarViewModel();
         var fileOperationsService = new FileOperationsService();

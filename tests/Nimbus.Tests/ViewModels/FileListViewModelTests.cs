@@ -75,10 +75,40 @@ public class FileListViewModelTests
         }
     }
 
+    [Fact]
+    public async Task LoadPreviewForSelectionAsync_Loads_Preview_For_Selected_Item()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"nimbus-filelist-vm-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempRoot);
+        var filePath = Path.Combine(tempRoot, "preview.txt");
+        await File.WriteAllTextAsync(filePath, "preview-content");
+
+        try
+        {
+            var viewModel = CreateViewModel();
+            await viewModel.LoadAsync(tempRoot);
+            viewModel.SelectedItem = viewModel.Items.First(i => string.Equals(i.Path, filePath, StringComparison.OrdinalIgnoreCase));
+
+            await viewModel.LoadPreviewForSelectionAsync();
+
+            Assert.NotNull(viewModel.CurrentPreview);
+            Assert.Equal("preview.txt", viewModel.CurrentPreview.Name);
+            Assert.Contains("preview-content", viewModel.CurrentPreview.TextPreview);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
+
     private static FileListViewModel CreateViewModel(ViewPreferenceService? preferenceService = null)
     {
         var shellItemService = new ShellItemService();
         var resolvedPreferenceService = preferenceService ?? new ViewPreferenceService();
-        return new FileListViewModel(shellItemService, resolvedPreferenceService);
+        var filePreviewService = new FilePreviewService();
+        return new FileListViewModel(shellItemService, resolvedPreferenceService, filePreviewService);
     }
 }
