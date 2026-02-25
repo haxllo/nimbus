@@ -40,16 +40,28 @@
 3. Confirm root path opens, search query is executed, and result list updates.
 4. Verify failure message appears when saved-search root path is unavailable.
 
+### Task 5E: Replace Placeholder Tags with Real Tag Model (Pending)
+**Files:**
+- Create: `src/Nimbus.Core/Models/FileTagModel.cs`
+- Create: `src/Nimbus.Core/Services/ITagService.cs`
+- Create: `src/Nimbus.Core/Services/TagService.cs`
+- Modify: `src/Nimbus.Core/ViewModels/SidebarViewModel.cs`
+- Modify: `src/Nimbus.App/App.xaml.cs`
+- Modify: `src/Nimbus.App/Views/SidebarView.xaml`
+- Modify: `src/Nimbus.App/Views/SidebarView.xaml.cs`
+- Test: `tests/Nimbus.Tests/Services/TagServiceTests.cs`
+- Test: `tests/Nimbus.Tests/Services/SidebarViewModelTests.cs`
+
 ---
 
 ## Task 4 Recovery: Tab UI Re-Integration (Pending)
 
-### Task 4R1: Re-introduce tab controls without new XAML event signatures
+### Task 4R1: Re-introduce tab controls without new XAML event signatures (Completed)
 **Files:**
 - Modify: `src/Nimbus.App/Views/MainPage.xaml`
 - Modify: `src/Nimbus.App/Views/MainPage.xaml.cs`
 
-### Task 4R2: Add safe tab keyboard handling in code-behind
+### Task 4R2: Add safe tab keyboard handling in code-behind (Completed)
 **Files:**
 - Modify: `src/Nimbus.App/Views/MainPage.xaml.cs`
 
@@ -63,12 +75,12 @@
 
 ## Task 3 Recovery: Quick Look UI Re-Integration (Pending)
 
-### Task 3R1: Restore `Space` accelerator and preview dialog handler
+### Task 3R1: Restore `Space` accelerator and preview dialog handler (Completed)
 **Files:**
 - Modify: `src/Nimbus.App/Views/MainPage.xaml`
 - Modify: `src/Nimbus.App/Views/MainPage.xaml.cs`
 
-### Task 3R2: Bind preview pane to `CurrentPreview` model (if stable)
+### Task 3R2: Bind preview pane to `CurrentPreview` model (Completed)
 **Files:**
 - Modify: `src/Nimbus.App/Views/MainPage.xaml`
 - Modify: `src/Nimbus.App/Views/MainPage.xaml.cs`
@@ -81,7 +93,10 @@
 **Files:**
 - Create: `docs/regression-checklist-v2-finder-parity.md`
 
+Status: Completed
+
 ### Task 6B: Update roadmap with true status and next queue
 **Files:**
 - Modify: `ROADMAP.md`
 
+Status: Completed
