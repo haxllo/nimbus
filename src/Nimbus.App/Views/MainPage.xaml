@@ -8,6 +8,12 @@
     xmlns:views="using:Nimbus.App.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
+    <Page.KeyboardAccelerators>
+        <KeyboardAccelerator Key="Left" Modifiers="Menu" Invoked="OnBackAcceleratorInvoked" />
+        <KeyboardAccelerator Key="Right" Modifiers="Menu" Invoked="OnForwardAcceleratorInvoked" />
+        <KeyboardAccelerator Key="Delete" Invoked="OnDeleteAcceleratorInvoked" />
+        <KeyboardAccelerator Key="F" Modifiers="Control" Invoked="OnSearchFocusAcceleratorInvoked" />
+    </Page.KeyboardAccelerators>
     <Page.Content>
         <Grid>
             <Grid.RowDefinitions>

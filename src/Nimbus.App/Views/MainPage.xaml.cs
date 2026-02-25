@@ -72,12 +72,57 @@ public partial class MainPage : Page
 
     private async void OnBackClicked(object sender, RoutedEventArgs e)
     {
+        await NavigateBackAsync();
+    }
+
+    private async void OnForwardClicked(object sender, RoutedEventArgs e)
+    {
+        await NavigateForwardAsync();
+    }
+
+    private async void OnDeleteClicked(object sender, RoutedEventArgs e)
+    {
+        await DeleteSelectedItemAsync();
+    }
+
+    private async void OnBackAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        await NavigateBackAsync();
+        args.Handled = true;
+    }
+
+    private async void OnForwardAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        await NavigateForwardAsync();
+        args.Handled = true;
+    }
+
+    private async void OnDeleteAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (FocusManager.GetFocusedElement(XamlRoot) is TextBox)
+        {
+            return;
+        }
+
+        await DeleteSelectedItemAsync();
+        args.Handled = true;
+    }
+
+    private void OnSearchFocusAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        _ = SearchBox.Focus(FocusState.Programmatic);
+        SearchBox.SelectAll();
+        args.Handled = true;
+    }
+
+    private async Task NavigateBackAsync()
+    {
         var success = await _viewModel.GoBackAsync();
         UpdateNavigationUi();
         SetStatus(success ? "Navigated back." : "No previous location.");
     }
 
-    private async void OnForwardClicked(object sender, RoutedEventArgs e)
+    private async Task NavigateForwardAsync()
     {
         var success = await _viewModel.GoForwardAsync();
         UpdateNavigationUi();
@@ -140,7 +185,7 @@ public partial class MainPage : Page
         }
     }
 
-    private async void OnDeleteClicked(object sender, RoutedEventArgs e)
+    private async Task DeleteSelectedItemAsync()
     {
         var selectedItem = _viewModel.FileList.SelectedItem;
         if (selectedItem is null)

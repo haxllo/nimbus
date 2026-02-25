@@ -55,7 +55,8 @@ Scope:
 Status:
 - [x] Breadcrumb UI with clickable segments.
 - [ ] Toolbar actions for New Folder, Rename, Delete, Refresh.
-- [ ] Keyboard shortcuts (`Alt+Left`, `Alt+Right`, `F2`, `Delete`, `Ctrl+F`).
+- [x] Keyboard shortcuts (`Alt+Left`, `Alt+Right`, `Delete`, `Ctrl+F`).
+- [ ] Rename shortcut (`F2`) after rename action is added.
 
 Exit Criteria:
 - Full keyboard navigation for core actions.
@@ -77,7 +78,7 @@ Exit Criteria:
 - File operations succeed in temp directories and provide actionable errors on failures.
 
 ## Immediate Next Tasks
-1. Add keyboard shortcuts for core actions (`Alt+Left`, `Alt+Right`, `Delete`, `Ctrl+F`).
-2. Add targeted tests for rename/delete edge cases and cancellation behavior.
-3. Add operation confirmation/feedback UX polish (success toast and optional delete confirmation).
-4. Add New Folder and Rename toolbar actions.
+1. Add New Folder and Rename toolbar actions.
+2. Add `F2` rename shortcut once rename action exists.
+3. Add targeted tests for rename/delete edge cases and cancellation behavior.
+4. Add operation confirmation/feedback UX polish (success toast and optional delete confirmation).
