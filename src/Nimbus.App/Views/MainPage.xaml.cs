@@ -311,16 +311,27 @@ public partial class MainPage : Page
 
         await RefreshCurrentFolderAsync(showStatus: false);
         SelectItemByPath(Path.Combine(currentPath, folderName));
-        SetStatus(result.Message);
+
+        var renamed = await RenameSelectedItemAsync(showMissingSelectionStatus: false, showCancelledStatus: false);
+        if (!renamed)
+        {
+            SetStatus(result.Message);
+        }
     }
 
-    private async Task RenameSelectedItemAsync()
+    private async Task<bool> RenameSelectedItemAsync(
+        bool showMissingSelectionStatus = true,
+        bool showCancelledStatus = true)
     {
         var selectedItem = _viewModel.FileList.SelectedItem;
         if (selectedItem is null)
         {
-            SetStatus("Select an item to rename.");
-            return;
+            if (showMissingSelectionStatus)
+            {
+                SetStatus("Select an item to rename.");
+            }
+
+            return false;
         }
 
         var currentName = string.IsNullOrWhiteSpace(selectedItem.DisplayName)
@@ -330,21 +341,36 @@ public partial class MainPage : Page
         var newName = await PromptForNewNameAsync(currentName);
         if (newName is null)
         {
-            SetStatus("Rename cancelled.");
-            return;
+            if (showCancelledStatus)
+            {
+                SetStatus("Rename cancelled.");
+            }
+
+            return false;
+        }
+
+        if (string.Equals(newName, currentName, StringComparison.OrdinalIgnoreCase))
+        {
+            if (showCancelledStatus)
+            {
+                SetStatus("Rename cancelled.");
+            }
+
+            return false;
         }
 
         var result = await _fileOperationsService.RenameAsync(selectedItem.Path, newName);
         if (!result.IsSuccess)
         {
             SetStatus(result.Message, isError: true);
-            return;
+            return false;
         }
 
         await RefreshCurrentFolderAsync(showStatus: false);
         var parentPath = Path.GetDirectoryName(selectedItem.Path) ?? string.Empty;
         SelectItemByPath(Path.Combine(parentPath, newName));
         SetStatus(result.Message);
+        return true;
     }
 
     private async void OnBreadcrumbClicked(object sender, RoutedEventArgs e)
