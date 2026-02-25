@@ -9,23 +9,30 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
     <Page.Resources>
-        <SolidColorBrush x:Key="FinderWindowBrush" Color="#F3F3F5" />
-        <SolidColorBrush x:Key="FinderChromeBrush" Color="#ECECF0" />
-        <SolidColorBrush x:Key="FinderPanelBrush" Color="#FFFFFF" />
-        <SolidColorBrush x:Key="FinderDividerBrush" Color="#D2D2D8" />
-        <SolidColorBrush x:Key="FinderSubtleTextBrush" Color="#5E5E65" />
-        <SolidColorBrush x:Key="FinderTabBrush" Color="#E4E4EA" />
-        <SolidColorBrush x:Key="FinderTabActiveBrush" Color="#FFFFFF" />
+        <LinearGradientBrush x:Key="FinderWindowBrush" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F1F1F4" Offset="0" />
+            <GradientStop Color="#E7E7EC" Offset="1" />
+        </LinearGradientBrush>
+        <SolidColorBrush x:Key="FinderChromeBrush" Color="#E4E4EA" />
+        <SolidColorBrush x:Key="FinderPanelBrush" Color="#FBFBFD" />
+        <SolidColorBrush x:Key="FinderPanelElevatedBrush" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="FinderDividerBrush" Color="#CFCFD7" />
+        <SolidColorBrush x:Key="FinderSubtleTextBrush" Color="#65656F" />
+        <SolidColorBrush x:Key="FinderTitleTextBrush" Color="#3F3F46" />
+        <SolidColorBrush x:Key="FinderTabBrush" Color="#E7E7EE" />
+        <SolidColorBrush x:Key="FinderTabActiveBrush" Color="#FDFDFF" />
         <SolidColorBrush x:Key="FinderBlueBrush" Color="#0A84FF" />
 
         <Style x:Key="FinderToolbarButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="30" />
+            <Setter Property="Height" Value="32" />
             <Setter Property="MinWidth" Value="82" />
-            <Setter Property="Padding" Value="10,0" />
-            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="12,0" />
+            <Setter Property="CornerRadius" Value="9" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="BorderBrush" Value="{StaticResource FinderDividerBrush}" />
-            <Setter Property="Background" Value="{StaticResource FinderPanelBrush}" />
+            <Setter Property="Background" Value="{StaticResource FinderPanelElevatedBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource FinderTitleTextBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
         </Style>
 
         <Style x:Key="FinderNavButtonStyle" TargetType="Button" BasedOn="{StaticResource FinderToolbarButtonStyle}">
@@ -34,12 +41,13 @@
         </Style>
 
         <Style x:Key="FinderTabButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="30" />
+            <Setter Property="Height" Value="32" />
             <Setter Property="Padding" Value="14,0" />
-            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="CornerRadius" Value="9" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="BorderBrush" Value="{StaticResource FinderDividerBrush}" />
             <Setter Property="Background" Value="{StaticResource FinderTabBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource FinderTitleTextBrush}" />
         </Style>
 
         <Style x:Key="FinderTabButtonActiveStyle" TargetType="Button" BasedOn="{StaticResource FinderTabButtonStyle}">
@@ -88,7 +96,7 @@
                 <ColumnDefinition x:Name="PreviewColumn" Width="300" MinWidth="220" MaxWidth="620" />
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Margin="12,10,12,6" Padding="10,8" Background="{StaticResource FinderChromeBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="12">
+            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Margin="12,10,12,6" Padding="10,8" Background="{StaticResource FinderChromeBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="13">
                 <Grid RowSpacing="8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -111,7 +119,7 @@
                             <Ellipse Width="11" Height="11" Fill="#28C840" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,2,0">
-                            <TextBlock Text="Nimbus" FontWeight="SemiBold" />
+                            <TextBlock Text="Nimbus" FontWeight="SemiBold" Foreground="{StaticResource FinderTitleTextBrush}" />
                             <TextBlock Text="  Finder View" Foreground="{StaticResource FinderSubtleTextBrush}" />
                         </StackPanel>
 
@@ -130,12 +138,20 @@
                             Grid.Column="5"
                             Margin="8,0,8,0"
                             MinWidth="240"
+                            Padding="10,5"
+                            Background="{StaticResource FinderPanelElevatedBrush}"
+                            BorderBrush="{StaticResource FinderDividerBrush}"
+                            CornerRadius="8"
                             PlaceholderText="Path"
                             KeyDown="OnPathBoxKeyDown" />
                         <TextBox
                             x:Name="SearchBox"
                             Grid.Column="6"
                             MinWidth="180"
+                            Padding="10,5"
+                            Background="{StaticResource FinderPanelElevatedBrush}"
+                            BorderBrush="{StaticResource FinderDividerBrush}"
+                            CornerRadius="8"
                             PlaceholderText="Search in current folder"
                             KeyDown="OnSearchBoxKeyDown"
                             ToolTipService.ToolTip="Search (Ctrl+F)" />
@@ -151,13 +167,13 @@
                             <Button x:Name="NewFolderButton" Content="New Folder" Click="OnNewFolderClicked" ToolTipService.ToolTip="New Folder (Ctrl+N)" Style="{StaticResource FinderToolbarButtonStyle}" />
                             <Button x:Name="RenameButton" Content="Rename" Click="OnRenameClicked" ToolTipService.ToolTip="Rename (F2)" Style="{StaticResource FinderToolbarButtonStyle}" />
                             <Button x:Name="DeleteButton" Content="Delete" Click="OnDeleteClicked" ToolTipService.ToolTip="Delete (Delete)" Style="{StaticResource FinderToolbarButtonStyle}" />
-                            <ComboBox x:Name="ViewModeSelector" Width="160" SelectionChanged="OnViewModeSelectionChanged" ToolTipService.ToolTip="View mode (Finder-style)">
+                            <ComboBox x:Name="ViewModeSelector" Width="160" Padding="8,3" CornerRadius="8" Background="{StaticResource FinderPanelElevatedBrush}" BorderBrush="{StaticResource FinderDividerBrush}" SelectionChanged="OnViewModeSelectionChanged" ToolTipService.ToolTip="View mode (Finder-style)">
                                 <x:String>List</x:String>
                                 <x:String>Icon</x:String>
                                 <x:String>Column</x:String>
                                 <x:String>Gallery</x:String>
                             </ComboBox>
-                            <ComboBox x:Name="SortSelector" Width="210" SelectionChanged="OnSortSelectionChanged" ToolTipService.ToolTip="Sort order">
+                            <ComboBox x:Name="SortSelector" Width="210" Padding="8,3" CornerRadius="8" Background="{StaticResource FinderPanelElevatedBrush}" BorderBrush="{StaticResource FinderDividerBrush}" SelectionChanged="OnSortSelectionChanged" ToolTipService.ToolTip="Sort order">
                                 <x:String>Name (A-Z)</x:String>
                                 <x:String>Name (Z-A)</x:String>
                                 <x:String>Date Modified (Oldest)</x:String>
@@ -170,7 +186,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Margin="12,0,12,4" Padding="8,6" Background="{StaticResource FinderChromeBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="10">
+            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Margin="12,0,12,4" Padding="8,6" Background="{StaticResource FinderChromeBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="11">
                 <Grid ColumnSpacing="8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -216,7 +232,7 @@
                 PointerMoved="OnPreviewSplitterPointerMoved"
                 PointerReleased="OnPreviewSplitterPointerReleased"
                 PointerCanceled="OnPreviewSplitterPointerCanceled" />
-            <Border Grid.Row="3" Grid.Column="4" Margin="8,0,12,0" Padding="12" Background="{StaticResource FinderPanelBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="10">
+            <Border Grid.Row="3" Grid.Column="4" Margin="8,0,12,0" Padding="12" Background="{StaticResource FinderPanelElevatedBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="11">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Preview" FontSize="16" FontWeight="SemiBold" />
                     <TextBlock Text="Name" FontWeight="SemiBold" />
@@ -233,12 +249,12 @@
                     <TextBlock Text="{Binding FileList.CurrentPreview.ErrorMessage}" TextWrapping="WrapWholeWords" />
                     <TextBlock Text="Text Preview" FontWeight="SemiBold" />
                     <TextBlock Text="{Binding FileList.CurrentPreview.TextPreview}" TextWrapping="WrapWholeWords" MaxLines="14" />
-                    <Border Margin="0,12,0,0" Padding="8" CornerRadius="6">
-                        <TextBlock Text="Press Space for Quick Look." TextWrapping="WrapWholeWords" />
+                    <Border Margin="0,12,0,0" Padding="8" CornerRadius="7" Background="{StaticResource FinderChromeBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1">
+                        <TextBlock Text="Press Space for Quick Look." Foreground="{StaticResource FinderSubtleTextBrush}" TextWrapping="WrapWholeWords" />
                     </Border>
                 </StackPanel>
             </Border>
-            <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5" Margin="12,6,12,10" Padding="12,8" Background="{StaticResource FinderPanelBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="10">
+            <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5" Margin="12,6,12,10" Padding="12,8" Background="{StaticResource FinderPanelElevatedBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="11">
                 <InfoBar
                     x:Name="StatusInfoBar"
                     IsOpen="True"

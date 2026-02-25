@@ -4,17 +4,19 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Nimbus.App.Views">
     <UserControl.Resources>
-        <SolidColorBrush x:Key="FileListPanelBrush" Color="#FFFFFF" />
-        <SolidColorBrush x:Key="FileListHeaderBrush" Color="#F2F3F6" />
-        <SolidColorBrush x:Key="FileListDividerBrush" Color="#D2D2D8" />
-        <SolidColorBrush x:Key="FileListMutedBrush" Color="#6A6A72" />
+        <SolidColorBrush x:Key="FileListPanelBrush" Color="#FCFCFE" />
+        <SolidColorBrush x:Key="FileListHeaderBrush" Color="#ECECF2" />
+        <SolidColorBrush x:Key="FileListDividerBrush" Color="#CECFD7" />
+        <SolidColorBrush x:Key="FileListMutedBrush" Color="#6A6A73" />
+        <SolidColorBrush x:Key="FileListPrimaryBrush" Color="#3F4048" />
 
         <Style x:Key="FinderFileListItemStyle" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="MinHeight" Value="34" />
-            <Setter Property="Padding" Value="2" />
-            <Setter Property="Margin" Value="4,1" />
-            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="MinHeight" Value="35" />
+            <Setter Property="Padding" Value="1" />
+            <Setter Property="Margin" Value="4,1.5" />
+            <Setter Property="CornerRadius" Value="7" />
+            <Setter Property="Background" Value="Transparent" />
         </Style>
 
         <Style x:Key="ColumnBrowserListStyle" TargetType="ListView">
@@ -23,6 +25,12 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Background" Value="Transparent" />
         </Style>
+
+        <SolidColorBrush x:Key="ListViewItemBackgroundPointerOver" Color="#E8EDF9" />
+        <SolidColorBrush x:Key="ListViewItemBackgroundSelected" Color="#D5E5FF" />
+        <SolidColorBrush x:Key="ListViewItemBackgroundSelectedPointerOver" Color="#C9DDFF" />
+        <SolidColorBrush x:Key="ListViewItemForegroundSelected" Color="#183E7F" />
+        <SolidColorBrush x:Key="ListViewItemForegroundSelectedPointerOver" Color="#183E7F" />
 
         <ItemsPanelTemplate x:Key="ListItemsPanel">
             <ItemsStackPanel />
@@ -43,7 +51,7 @@
                         VerticalAlignment="Center" />
                     <Image Source="{Binding ThumbnailPath}" Stretch="UniformToFill" />
                 </Grid>
-                <TextBlock Text="{Binding DisplayName}" Width="248" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding DisplayName}" Width="248" Foreground="{StaticResource FileListPrimaryBrush}" TextTrimming="CharacterEllipsis" />
                 <TextBlock Text="{Binding DateModified}" Width="160" Foreground="{StaticResource FileListMutedBrush}" />
                 <TextBlock Text="{Binding SizeBytes}" Width="120" Foreground="{StaticResource FileListMutedBrush}" />
             </StackPanel>
@@ -63,7 +71,7 @@
                         <Image Source="{Binding ThumbnailPath}" Stretch="UniformToFill" />
                     </Grid>
                 </Border>
-                <TextBlock Text="{Binding DisplayName}" Margin="0,8,0,0" TextAlignment="Center" TextWrapping="WrapWholeWords" MaxLines="2" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding DisplayName}" Margin="0,8,0,0" Foreground="{StaticResource FileListPrimaryBrush}" TextAlignment="Center" TextWrapping="WrapWholeWords" MaxLines="2" TextTrimming="CharacterEllipsis" />
             </StackPanel>
         </DataTemplate>
 
@@ -78,7 +86,7 @@
                         VerticalAlignment="Center" />
                     <Image Source="{Binding ThumbnailPath}" Stretch="UniformToFill" />
                 </Grid>
-                <TextBlock Width="180" Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Width="180" Text="{Binding DisplayName}" Foreground="{StaticResource FileListPrimaryBrush}" TextTrimming="CharacterEllipsis" />
             </StackPanel>
         </DataTemplate>
 
@@ -97,14 +105,14 @@
                             <Image Source="{Binding ThumbnailPath}" Stretch="UniformToFill" />
                         </Grid>
                     </Border>
-                    <TextBlock Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding DisplayName}" Foreground="{StaticResource FileListPrimaryBrush}" TextTrimming="CharacterEllipsis" />
                     <TextBlock Text="{Binding DateModified}" FontSize="11" Foreground="{StaticResource FileListMutedBrush}" />
                 </StackPanel>
             </Border>
         </DataTemplate>
     </UserControl.Resources>
 
-    <Border Background="{StaticResource FileListPanelBrush}" BorderBrush="{StaticResource FileListDividerBrush}" BorderThickness="1" CornerRadius="10">
+    <Border Background="{StaticResource FileListPanelBrush}" BorderBrush="{StaticResource FileListDividerBrush}" BorderThickness="1" CornerRadius="11">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -116,9 +124,9 @@
                     <ColumnDefinition Width="160" />
                     <ColumnDefinition Width="120" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="Name" FontWeight="SemiBold" Foreground="{StaticResource FileListMutedBrush}" />
-                <TextBlock Grid.Column="1" Text="Date Modified" FontWeight="SemiBold" Foreground="{StaticResource FileListMutedBrush}" />
-                <TextBlock Grid.Column="2" Text="Size" FontWeight="SemiBold" Foreground="{StaticResource FileListMutedBrush}" />
+                <TextBlock Text="Name" FontWeight="SemiBold" CharacterSpacing="60" Foreground="{StaticResource FileListMutedBrush}" />
+                <TextBlock Grid.Column="1" Text="Date Modified" FontWeight="SemiBold" CharacterSpacing="60" Foreground="{StaticResource FileListMutedBrush}" />
+                <TextBlock Grid.Column="2" Text="Size" FontWeight="SemiBold" CharacterSpacing="60" Foreground="{StaticResource FileListMutedBrush}" />
             </Grid>
             <ListView
                 x:Name="FileList"
