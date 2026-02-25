@@ -39,11 +39,11 @@ public sealed class ShellItemService : IShellItemService
         {
             return Task.FromResult<IReadOnlyList<ShellItemModel>>(Array.Empty<ShellItemModel>());
         }
-        catch (IOException)
+        catch (PathTooLongException)
         {
             return Task.FromResult<IReadOnlyList<ShellItemModel>>(Array.Empty<ShellItemModel>());
         }
-        catch (PathTooLongException)
+        catch (IOException)
         {
             return Task.FromResult<IReadOnlyList<ShellItemModel>>(Array.Empty<ShellItemModel>());
         }
@@ -108,11 +108,11 @@ public sealed class ShellItemService : IShellItemService
         {
             return null;
         }
-        catch (IOException)
+        catch (PathTooLongException)
         {
             return null;
         }
-        catch (PathTooLongException)
+        catch (IOException)
         {
             return null;
         }

@@ -73,11 +73,11 @@ public sealed class SearchService : ISearchService
         {
             return Array.Empty<string>();
         }
-        catch (IOException)
+        catch (PathTooLongException)
         {
             return Array.Empty<string>();
         }
-        catch (PathTooLongException)
+        catch (IOException)
         {
             return Array.Empty<string>();
         }
@@ -101,11 +101,11 @@ public sealed class SearchService : ISearchService
         {
             return Array.Empty<string>();
         }
-        catch (IOException)
+        catch (PathTooLongException)
         {
             return Array.Empty<string>();
         }
-        catch (PathTooLongException)
+        catch (IOException)
         {
             return Array.Empty<string>();
         }
