@@ -272,7 +272,13 @@ public partial class MainPage : Page
 
     private async void OnTabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {
-        if (args.Item is not ExplorerTabModel tab)
+        var tab = args.Item as ExplorerTabModel;
+        if (tab is null && args.Item is TabViewItem tabViewItem)
+        {
+            tab = tabViewItem.DataContext as ExplorerTabModel;
+        }
+
+        if (tab is null)
         {
             return;
         }

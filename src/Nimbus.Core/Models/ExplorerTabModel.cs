@@ -46,6 +46,8 @@ public sealed class ExplorerTabModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(NavigationState));
     }
 
+    public override string ToString() => Title;
+
     private static string BuildTitle(string? path)
     {
         if (string.IsNullOrWhiteSpace(path))
