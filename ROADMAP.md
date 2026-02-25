@@ -96,7 +96,7 @@ Scope:
 
 Status:
 - [x] Plan created: `docs/plans/2026-02-25-finder-parity-next-feature-set.md`.
-- [ ] Task 1: Finder-like shell layout.
+- [x] Task 1: Finder-like shell layout (grouped sidebar, top view/sort controls, preview host first pass).
 - [ ] Task 2: View modes.
 - [ ] Task 3: Preview pane + quick look.
 - [ ] Task 4: Tabbed navigation.
@@ -115,6 +115,6 @@ Exit Criteria:
 
 ## Immediate Next Tasks
 1. [ ] Complete M3 regression pass (`docs/regression-checklist-v1.md`).
-2. [ ] Execute M4 Task 1: Finder-like shell layout (`docs/plans/2026-02-25-finder-parity-next-feature-set.md`).
-3. [ ] Execute M4 Task 2: View modes (`Icon/List/Column/Gallery`).
-4. [ ] Execute M4 Task 3: Preview pane + quick look.
+2. [ ] Execute M4 Task 2: View modes (`Icon/List/Column/Gallery`).
+3. [ ] Execute M4 Task 3: Preview pane + quick look.
+4. [ ] Execute M4 Task 4: tabbed navigation.

@@ -4,16 +4,31 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Nimbus.App.Views">
 
-    <Grid>
+    <Grid Padding="8,8,8,4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Text="Favorites" FontWeight="SemiBold" Margin="8,2,8,8" />
         <ListView
             x:Name="SidebarList"
+            Grid.Row="1"
             ItemsSource="{Binding Locations}"
-            SelectionChanged="OnSelectionChanged">
+            SelectionChanged="OnSelectionChanged"
+            Margin="0,0,0,12">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding DisplayName}" Margin="12,6" />
+                    <TextBlock Text="{Binding DisplayName}" Margin="12,6" TextTrimming="CharacterEllipsis" />
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
+        <TextBlock Grid.Row="2" Text="Tags" FontWeight="SemiBold" Margin="8,0,8,8" />
+        <StackPanel Grid.Row="3" Spacing="6" Margin="12,0,12,0">
+            <TextBlock Text="Work" Opacity="0.85" />
+            <TextBlock Text="Personal" Opacity="0.85" />
+            <TextBlock Text="Shared" Opacity="0.85" />
+        </StackPanel>
     </Grid>
 </UserControl>

@@ -26,11 +26,12 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="240" />
+                <ColumnDefinition Width="260" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Padding="12" ColumnSpacing="8">
+            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Padding="12" ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -38,6 +39,8 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="130" />
+                    <ColumnDefinition Width="160" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="220" />
                 </Grid.ColumnDefinitions>
@@ -48,17 +51,44 @@
                 <Button x:Name="NewFolderButton" Grid.Column="3" Content="New Folder" Click="OnNewFolderClicked" Margin="8,0,0,0" ToolTipService.ToolTip="New Folder (Ctrl+N)" />
                 <Button x:Name="RenameButton" Grid.Column="4" Content="Rename" Click="OnRenameClicked" Margin="8,0,0,0" ToolTipService.ToolTip="Rename (F2)" />
                 <Button x:Name="DeleteButton" Grid.Column="5" Content="Delete" Click="OnDeleteClicked" Margin="8,0,0,0" ToolTipService.ToolTip="Delete (Delete)" />
-                <TextBox x:Name="PathBox" Grid.Column="6" Margin="12,0,12,0" PlaceholderText="Path" KeyDown="OnPathBoxKeyDown" />
-                <TextBox x:Name="SearchBox" Grid.Column="7" PlaceholderText="Search" KeyDown="OnSearchBoxKeyDown" ToolTipService.ToolTip="Search (Ctrl+F)" />
+                <ComboBox x:Name="ViewModeSelector" Grid.Column="6" Margin="12,0,0,0" SelectedIndex="0" ToolTipService.ToolTip="View mode (Finder-style)">
+                    <x:String>List</x:String>
+                    <x:String>Icon</x:String>
+                    <x:String>Column</x:String>
+                    <x:String>Gallery</x:String>
+                </ComboBox>
+                <ComboBox x:Name="SortSelector" Grid.Column="7" SelectedIndex="0" ToolTipService.ToolTip="Sort order">
+                    <x:String>Name</x:String>
+                    <x:String>Date Modified</x:String>
+                    <x:String>Size</x:String>
+                </ComboBox>
+                <TextBox x:Name="PathBox" Grid.Column="8" Margin="12,0,12,0" PlaceholderText="Path" KeyDown="OnPathBoxKeyDown" />
+                <TextBox x:Name="SearchBox" Grid.Column="9" PlaceholderText="Search" KeyDown="OnSearchBoxKeyDown" ToolTipService.ToolTip="Search (Ctrl+F)" />
             </Grid>
 
-            <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
+            <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
                 <StackPanel x:Name="BreadcrumbPanel" Orientation="Horizontal" Spacing="4" Padding="12,4,12,8" />
             </ScrollViewer>
 
             <views:SidebarView x:Name="Sidebar" Grid.Row="2" Grid.Column="0" DataContext="{Binding Sidebar}" />
             <views:FileListView x:Name="FileList" Grid.Row="2" Grid.Column="1" DataContext="{Binding FileList}" />
-            <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Padding="12,8">
+            <Border Grid.Row="2" Grid.Column="2" Margin="8,0,12,0" Padding="12" BorderThickness="1" CornerRadius="8">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Preview" FontSize="16" FontWeight="SemiBold" />
+                    <TextBlock Text="Name" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding FileList.SelectedItem.DisplayName}" />
+                    <TextBlock Text="Path" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding FileList.SelectedItem.Path}" TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="Modified" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding FileList.SelectedItem.DateModified}" />
+                    <TextBlock Text="Size (bytes)" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding FileList.SelectedItem.SizeBytes}" />
+                    <Border Margin="0,12,0,0" Padding="8" CornerRadius="6">
+                        <TextBlock Text="Quick Look (Space) and richer previews are coming in the next feature slice." TextWrapping="WrapWholeWords" />
+                    </Border>
+                </StackPanel>
+            </Border>
+            <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Padding="12,8">
                 <InfoBar
                     x:Name="StatusInfoBar"
                     IsOpen="True"

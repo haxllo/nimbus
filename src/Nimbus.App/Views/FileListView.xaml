@@ -5,15 +5,30 @@
     xmlns:local="using:Nimbus.App.Views">
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid ColumnSpacing="12" Padding="16,8,16,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280" />
+                <ColumnDefinition Width="160" />
+                <ColumnDefinition Width="120" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Name" FontWeight="SemiBold" />
+            <TextBlock Grid.Column="1" Text="Date Modified" FontWeight="SemiBold" />
+            <TextBlock Grid.Column="2" Text="Size" FontWeight="SemiBold" />
+        </Grid>
         <ListView
             x:Name="FileList"
+            Grid.Row="1"
             ItemsSource="{Binding Items}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
             SelectionChanged="OnSelectionChanged"
             DoubleTapped="OnDoubleTapped">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="8,4">
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="16,4">
                         <TextBlock Text="{Binding DisplayName}" Width="280" />
                         <TextBlock Text="{Binding DateModified}" Width="160" />
                         <TextBlock Text="{Binding SizeBytes}" Width="120" />
