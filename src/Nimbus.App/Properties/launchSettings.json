@@ -1,10 +1,10 @@
 {
   "profiles": {
-    "Nimbus.App (Package)": {
-      "commandName": "MsixPackage"
-    },
     "Nimbus.App (Unpackaged)": {
       "commandName": "Project"
+    },
+    "Nimbus.App (Package)": {
+      "commandName": "MsixPackage"
     }
   }
 }
