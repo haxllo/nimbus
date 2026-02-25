@@ -2,6 +2,13 @@ namespace Nimbus.Core.Services;
 
 public sealed class SearchService : ISearchService
 {
+    private static readonly EnumerationOptions DirectoryEnumerationOptions = new()
+    {
+        RecurseSubdirectories = false,
+        IgnoreInaccessible = true,
+        ReturnSpecialDirectories = false
+    };
+
     public Task<IReadOnlyList<string>> SearchAsync(string rootPath, string pattern, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(rootPath) || string.IsNullOrWhiteSpace(pattern))
@@ -19,7 +26,7 @@ public sealed class SearchService : ISearchService
         var hasWildcards = HasWildcards(trimmedQuery);
         var filePattern = hasWildcards ? trimmedQuery : "*";
 
-        var results = new List<string>();
+        var results = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var stack = new Stack<string>();
         stack.Push(trimmedRootPath);
 
@@ -28,22 +35,23 @@ public sealed class SearchService : ISearchService
             cancellationToken.ThrowIfCancellationRequested();
             var current = stack.Pop();
 
-            foreach (var file in SafeEnumerateFiles(current, filePattern))
+            foreach (var file in EnumerateFilesSafely(current, filePattern))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (hasWildcards || IsPlainTextMatch(file, trimmedQuery))
                 {
                     results.Add(file);
                 }
             }
 
-            foreach (var dir in SafeEnumerateDirectories(current))
+            foreach (var dir in EnumerateDirectoriesSafely(current))
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 stack.Push(dir);
             }
         }
 
         var orderedResults = results
-            .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
@@ -59,59 +67,117 @@ public sealed class SearchService : ISearchService
         return fileName.Contains(query, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static IEnumerable<string> SafeEnumerateFiles(string directory, string pattern)
+    private static IEnumerable<string> EnumerateFilesSafely(string directory, string pattern)
     {
+        IEnumerable<string> files;
         try
         {
-            return Directory.EnumerateFiles(directory, pattern).ToArray();
+            files = Directory.EnumerateFiles(directory, pattern, DirectoryEnumerationOptions);
         }
         catch (UnauthorizedAccessException)
         {
-            return Array.Empty<string>();
+            yield break;
         }
         catch (DirectoryNotFoundException)
         {
-            return Array.Empty<string>();
+            yield break;
         }
         catch (PathTooLongException)
         {
-            return Array.Empty<string>();
+            yield break;
         }
         catch (IOException)
         {
-            return Array.Empty<string>();
+            yield break;
         }
         catch (ArgumentException)
         {
-            return Array.Empty<string>();
+            yield break;
+        }
+
+        try
+        {
+            foreach (var file in files)
+            {
+                yield return file;
+            }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            yield break;
+        }
+        catch (DirectoryNotFoundException)
+        {
+            yield break;
+        }
+        catch (PathTooLongException)
+        {
+            yield break;
+        }
+        catch (IOException)
+        {
+            yield break;
+        }
+        catch (ArgumentException)
+        {
+            yield break;
         }
     }
 
-    private static IEnumerable<string> SafeEnumerateDirectories(string directory)
+    private static IEnumerable<string> EnumerateDirectoriesSafely(string directory)
     {
+        IEnumerable<string> directories;
         try
         {
-            return Directory.EnumerateDirectories(directory).ToArray();
+            directories = Directory.EnumerateDirectories(directory, "*", DirectoryEnumerationOptions);
         }
         catch (UnauthorizedAccessException)
         {
-            return Array.Empty<string>();
+            yield break;
         }
         catch (DirectoryNotFoundException)
         {
-            return Array.Empty<string>();
+            yield break;
         }
         catch (PathTooLongException)
         {
-            return Array.Empty<string>();
+            yield break;
         }
         catch (IOException)
         {
-            return Array.Empty<string>();
+            yield break;
         }
         catch (ArgumentException)
         {
-            return Array.Empty<string>();
+            yield break;
+        }
+
+        try
+        {
+            foreach (var childDirectory in directories)
+            {
+                yield return childDirectory;
+            }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            yield break;
+        }
+        catch (DirectoryNotFoundException)
+        {
+            yield break;
+        }
+        catch (PathTooLongException)
+        {
+            yield break;
+        }
+        catch (IOException)
+        {
+            yield break;
+        }
+        catch (ArgumentException)
+        {
+            yield break;
         }
     }
 }

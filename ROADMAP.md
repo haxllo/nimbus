@@ -35,6 +35,7 @@ Scope:
 Status:
 - [x] `ShellItemService` now returns safe empty results for invalid/unavailable paths and sorts output.
 - [x] `SearchService` supports wildcard and plain-text queries; safely skips inaccessible directories.
+- [x] `SearchService` scan path optimized to reduce per-directory allocations and improve cancellation responsiveness.
 - [x] `MainPageViewModel` now has safe async navigation/back/forward flows that reload list state.
 - [x] Added tests for shell enumeration ordering/failures, search query modes, and main-page navigation behavior.
 - [x] Added file operation error-result model (`FileOperationResult`) with explicit error codes.
