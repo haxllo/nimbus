@@ -16,10 +16,6 @@
         <KeyboardAccelerator Key="Delete" Invoked="OnDeleteAcceleratorInvoked" />
         <KeyboardAccelerator Key="F2" Invoked="OnRenameAcceleratorInvoked" />
         <KeyboardAccelerator Key="F" Modifiers="Control" Invoked="OnSearchFocusAcceleratorInvoked" />
-        <KeyboardAccelerator Key="T" Modifiers="Control" Invoked="OnNewTabAcceleratorInvoked" />
-        <KeyboardAccelerator Key="W" Modifiers="Control" Invoked="OnCloseTabAcceleratorInvoked" />
-        <KeyboardAccelerator Key="Tab" Modifiers="Control" Invoked="OnNextTabAcceleratorInvoked" />
-        <KeyboardAccelerator Key="Tab" Modifiers="Control,Shift" Invoked="OnPreviousTabAcceleratorInvoked" />
         <KeyboardAccelerator Key="Space" Invoked="OnQuickLookAcceleratorInvoked" />
     </Page.KeyboardAccelerators>
     <Page.Content>
