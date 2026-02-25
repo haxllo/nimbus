@@ -15,6 +15,7 @@ public partial class MainPage : Page
 {
     private readonly MainPageViewModel _viewModel;
     private readonly ISearchService _searchService;
+    private CancellationTokenSource? _activeSearchCancellation;
 
     public MainPage()
     {
@@ -27,6 +28,7 @@ public partial class MainPage : Page
         Sidebar.LocationSelected += OnSidebarLocationSelected;
         FileList.ItemInvoked += OnFileItemInvoked;
         FileList.ItemSelectionChanged += OnFileItemSelectionChanged;
+        Unloaded += OnPageUnloaded;
 
         _ = InitializeAsync();
     }
@@ -40,6 +42,7 @@ public partial class MainPage : Page
 
     private async void OnSidebarLocationSelected(object? sender, SidebarLocation e)
     {
+        CancelActiveSearch();
         var success = await _viewModel.NavigateToAsync(e.Path);
         UpdateNavigationUi();
 
@@ -56,6 +59,7 @@ public partial class MainPage : Page
     {
         if (e.IsFolder)
         {
+            CancelActiveSearch();
             var success = await _viewModel.NavigateToAsync(e.Path);
             UpdateNavigationUi();
 
@@ -174,6 +178,7 @@ public partial class MainPage : Page
 
     private async Task NavigateBackAsync()
     {
+        CancelActiveSearch();
         var success = await _viewModel.GoBackAsync();
         UpdateNavigationUi();
         SetStatus(
@@ -183,6 +188,7 @@ public partial class MainPage : Page
 
     private async Task NavigateForwardAsync()
     {
+        CancelActiveSearch();
         var success = await _viewModel.GoForwardAsync();
         UpdateNavigationUi();
         SetStatus(
@@ -192,6 +198,7 @@ public partial class MainPage : Page
 
     private async Task RefreshCurrentFolderAsync(bool showStatus = true)
     {
+        CancelActiveSearch();
         var currentPath = _viewModel.Navigation.CurrentPath;
         if (string.IsNullOrWhiteSpace(currentPath))
         {
@@ -220,6 +227,7 @@ public partial class MainPage : Page
     {
         if (e.Key == Windows.System.VirtualKey.Enter && !string.IsNullOrWhiteSpace(PathBox.Text))
         {
+            CancelActiveSearch();
             var success = await _viewModel.NavigateToAsync(PathBox.Text);
             UpdateNavigationUi();
 
@@ -247,10 +255,23 @@ public partial class MainPage : Page
             return;
         }
 
+        var query = SearchBox.Text.Trim();
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            SetStatus("Enter a search term after opening a folder.", InfoBarSeverity.Warning);
+            return;
+        }
+
+        var searchCancellation = StartSearch();
+        SetStatus($"Searching \"{query}\"...", InfoBarSeverity.Informational);
+
         try
         {
-            var query = SearchBox.Text.Trim();
-            var results = await _searchService.SearchAsync(root, query);
+            var results = await _searchService.SearchAsync(root, query, searchCancellation.Token);
+            if (!IsActiveSearch(searchCancellation))
+            {
+                return;
+            }
 
             _viewModel.FileList.Items.Clear();
             foreach (var result in results)
@@ -268,9 +289,23 @@ public partial class MainPage : Page
                     : $"Found {results.Count} result(s) for \"{query}\".",
                 results.Count == 0 ? InfoBarSeverity.Warning : InfoBarSeverity.Success);
         }
+        catch (OperationCanceledException)
+        {
+            if (IsActiveSearch(searchCancellation))
+            {
+                SetStatus("Search cancelled.", InfoBarSeverity.Warning);
+            }
+        }
         catch (Exception ex)
         {
-            SetStatus($"Search failed: {ex.Message}", InfoBarSeverity.Error);
+            if (IsActiveSearch(searchCancellation))
+            {
+                SetStatus($"Search failed: {ex.Message}", InfoBarSeverity.Error);
+            }
+        }
+        finally
+        {
+            CompleteSearch(searchCancellation);
         }
     }
 
@@ -429,6 +464,7 @@ public partial class MainPage : Page
             return;
         }
 
+        CancelActiveSearch();
         var success = await _viewModel.NavigateToAsync(targetPath);
         UpdateNavigationUi();
 
@@ -501,6 +537,47 @@ public partial class MainPage : Page
         StatusInfoBar.Message = message;
         StatusInfoBar.Severity = severity;
         StatusInfoBar.IsOpen = true;
+    }
+
+    private void OnPageUnloaded(object sender, RoutedEventArgs e)
+    {
+        CancelActiveSearch();
+    }
+
+    private CancellationTokenSource StartSearch()
+    {
+        CancelActiveSearch();
+
+        var cancellation = new CancellationTokenSource();
+        _activeSearchCancellation = cancellation;
+        return cancellation;
+    }
+
+    private void CompleteSearch(CancellationTokenSource cancellation)
+    {
+        if (!ReferenceEquals(_activeSearchCancellation, cancellation))
+        {
+            return;
+        }
+
+        _activeSearchCancellation = null;
+        cancellation.Dispose();
+    }
+
+    private bool IsActiveSearch(CancellationTokenSource cancellation) =>
+        ReferenceEquals(_activeSearchCancellation, cancellation);
+
+    private void CancelActiveSearch()
+    {
+        var cancellation = _activeSearchCancellation;
+        if (cancellation is null)
+        {
+            return;
+        }
+
+        _activeSearchCancellation = null;
+        cancellation.Cancel();
+        cancellation.Dispose();
     }
 
     private bool IsTextInputFocused() =>

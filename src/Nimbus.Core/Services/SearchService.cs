@@ -17,18 +17,26 @@ public sealed class SearchService : ISearchService
         }
 
         var trimmedRootPath = rootPath.Trim();
-        if (!Directory.Exists(trimmedRootPath))
+        var trimmedQuery = pattern.Trim();
+        return Task.Run(() => SearchCore(trimmedRootPath, trimmedQuery, cancellationToken));
+    }
+
+    private static IReadOnlyList<string> SearchCore(
+        string rootPath,
+        string query,
+        CancellationToken cancellationToken)
+    {
+        if (!Directory.Exists(rootPath))
         {
-            return Task.FromResult<IReadOnlyList<string>>(Array.Empty<string>());
+            return Array.Empty<string>();
         }
 
-        var trimmedQuery = pattern.Trim();
-        var hasWildcards = HasWildcards(trimmedQuery);
-        var filePattern = hasWildcards ? trimmedQuery : "*";
+        var hasWildcards = HasWildcards(query);
+        var filePattern = hasWildcards ? query : "*";
 
         var results = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var stack = new Stack<string>();
-        stack.Push(trimmedRootPath);
+        stack.Push(rootPath);
 
         while (stack.Count > 0)
         {
@@ -37,23 +45,18 @@ public sealed class SearchService : ISearchService
 
             EnumerateFilesSafely(current, filePattern, cancellationToken, file =>
             {
-                if (hasWildcards || IsPlainTextMatch(file, trimmedQuery))
+                if (hasWildcards || IsPlainTextMatch(file, query))
                 {
                     results.Add(file);
                 }
             });
 
-            EnumerateDirectoriesSafely(current, cancellationToken, dir =>
-            {
-                stack.Push(dir);
-            });
+            EnumerateDirectoriesSafely(current, cancellationToken, stack.Push);
         }
 
-        var orderedResults = results
+        return results
             .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
             .ToArray();
-
-        return Task.FromResult<IReadOnlyList<string>>(orderedResults);
     }
 
     private static bool HasWildcards(string query) =>
