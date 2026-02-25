@@ -27,7 +27,6 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
@@ -37,23 +36,7 @@
                 <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Padding="12,8,12,0" ColumnSpacing="8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="220" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <ComboBox
-                    x:Name="TabSelector"
-                    ItemsSource="{Binding Tabs.Tabs}"
-                    SelectionChanged="OnTabSelectionChanged"
-                    PlaceholderText="Tabs" />
-                <Button Grid.Column="1" Content="New Tab" Click="OnNewTabButtonClicked" />
-                <Button Grid.Column="2" Content="Close Tab" Click="OnCloseTabButtonClicked" />
-            </Grid>
-
-            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Padding="12" ColumnSpacing="8">
+            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Padding="12" ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -88,13 +71,13 @@
                 <TextBox x:Name="SearchBox" Grid.Column="9" PlaceholderText="Search" KeyDown="OnSearchBoxKeyDown" ToolTipService.ToolTip="Search (Ctrl+F)" />
             </Grid>
 
-            <ScrollViewer Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
+            <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
                 <StackPanel x:Name="BreadcrumbPanel" Orientation="Horizontal" Spacing="4" Padding="12,4,12,8" />
             </ScrollViewer>
 
-            <views:SidebarView x:Name="Sidebar" Grid.Row="3" Grid.Column="0" DataContext="{Binding Sidebar}" />
-            <views:FileListView x:Name="FileList" Grid.Row="3" Grid.Column="1" DataContext="{Binding FileList}" />
-            <Border Grid.Row="3" Grid.Column="2" Margin="8,0,12,0" Padding="12" BorderThickness="1" CornerRadius="8">
+            <views:SidebarView x:Name="Sidebar" Grid.Row="2" Grid.Column="0" DataContext="{Binding Sidebar}" />
+            <views:FileListView x:Name="FileList" Grid.Row="2" Grid.Column="1" DataContext="{Binding FileList}" />
+            <Border Grid.Row="2" Grid.Column="2" Margin="8,0,12,0" Padding="12" BorderThickness="1" CornerRadius="8">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Preview" FontSize="16" FontWeight="SemiBold" />
                     <TextBlock Text="Name" FontWeight="SemiBold" />
@@ -121,7 +104,7 @@
                     </Border>
                 </StackPanel>
             </Border>
-            <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Padding="12,8">
+            <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Padding="12,8">
                 <InfoBar
                     x:Name="StatusInfoBar"
                     IsOpen="True"

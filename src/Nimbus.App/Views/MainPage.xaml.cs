@@ -282,7 +282,7 @@ public partial class MainPage : Page
             return;
         }
 
-        if (TabSelector.SelectedItem is not ExplorerTabModel tab)
+        if (sender is not ComboBox comboBox || comboBox.SelectedItem is not ExplorerTabModel tab)
         {
             return;
         }
@@ -840,21 +840,7 @@ public partial class MainPage : Page
 
     private void UpdateTabSelection()
     {
-        var activeTab = _viewModel.Tabs.ActiveTab;
-        if (activeTab is null || ReferenceEquals(TabSelector.SelectedItem, activeTab))
-        {
-            return;
-        }
-
-        _isSyncingTabSelection = true;
-        try
-        {
-            TabSelector.SelectedItem = activeTab;
-        }
-        finally
-        {
-            _isSyncingTabSelection = false;
-        }
+        // Tab UI is temporarily keyboard-driven only; no selector control is wired yet.
     }
 
     private void UpdateViewModeSelector()
