@@ -29,6 +29,30 @@ public class FileOperationsServiceTests
     }
 
     [Fact]
+    public async Task CreateDirectoryAsync_When_Target_Exists_Returns_Conflict()
+    {
+        var svc = new FileOperationsService();
+        var temp = Path.Combine(Path.GetTempPath(), $"nimbus-tests-{Guid.NewGuid():N}");
+        var existingPath = Path.Combine(temp, "New Folder");
+        Directory.CreateDirectory(existingPath);
+
+        try
+        {
+            var result = await svc.CreateDirectoryAsync(temp, "New Folder");
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal(FileOperationErrorCode.Conflict, result.ErrorCode);
+        }
+        finally
+        {
+            if (Directory.Exists(temp))
+            {
+                Directory.Delete(temp, recursive: true);
+            }
+        }
+    }
+
+    [Fact]
     public async Task CopyFile_Creates_Destination()
     {
         var svc = new FileOperationsService();
@@ -210,6 +234,32 @@ public class FileOperationsServiceTests
         cts.Cancel();
 
         var result = await svc.CopyAsync("a", "b", cts.Token);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(FileOperationErrorCode.Cancelled, result.ErrorCode);
+    }
+
+    [Fact]
+    public async Task CreateDirectoryAsync_Cancelled_Token_Returns_Cancelled()
+    {
+        var svc = new FileOperationsService();
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        var result = await svc.CreateDirectoryAsync("a", "b", cts.Token);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(FileOperationErrorCode.Cancelled, result.ErrorCode);
+    }
+
+    [Fact]
+    public async Task RenameAsync_Cancelled_Token_Returns_Cancelled()
+    {
+        var svc = new FileOperationsService();
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        var result = await svc.RenameAsync("a", "b", cts.Token);
 
         Assert.False(result.IsSuccess);
         Assert.Equal(FileOperationErrorCode.Cancelled, result.ErrorCode);

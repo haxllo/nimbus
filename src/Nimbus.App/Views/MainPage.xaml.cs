@@ -47,11 +47,11 @@ public partial class MainPage : Page
 
         if (!success)
         {
-            SetStatus($"Unable to open location: {e.Path}", isError: true);
+            SetStatus($"Unable to open location: {e.Path}", InfoBarSeverity.Error);
             return;
         }
 
-        SetStatus($"Opened {e.DisplayName}.");
+        SetStatus($"Opened {e.DisplayName}.", InfoBarSeverity.Success);
     }
 
     private async void OnFileItemInvoked(object? sender, ShellItemModel e)
@@ -63,11 +63,11 @@ public partial class MainPage : Page
 
             if (!success)
             {
-                SetStatus($"Unable to open folder: {e.Path}", isError: true);
+                SetStatus($"Unable to open folder: {e.Path}", InfoBarSeverity.Error);
                 return;
             }
 
-            SetStatus($"Opened {e.DisplayName}.");
+            SetStatus($"Opened {e.DisplayName}.", InfoBarSeverity.Success);
         }
     }
 
@@ -134,6 +134,17 @@ public partial class MainPage : Page
         args.Handled = true;
     }
 
+    private async void OnNewFolderAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
+        await CreateNewFolderAsync();
+        args.Handled = true;
+    }
+
     private async void OnDeleteAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
         if (IsTextInputFocused())
@@ -167,14 +178,18 @@ public partial class MainPage : Page
     {
         var success = await _viewModel.GoBackAsync();
         UpdateNavigationUi();
-        SetStatus(success ? "Navigated back." : "No previous location.");
+        SetStatus(
+            success ? "Navigated back." : "No previous location.",
+            success ? InfoBarSeverity.Informational : InfoBarSeverity.Warning);
     }
 
     private async Task NavigateForwardAsync()
     {
         var success = await _viewModel.GoForwardAsync();
         UpdateNavigationUi();
-        SetStatus(success ? "Navigated forward." : "No forward location.");
+        SetStatus(
+            success ? "Navigated forward." : "No forward location.",
+            success ? InfoBarSeverity.Informational : InfoBarSeverity.Warning);
     }
 
     private async Task RefreshCurrentFolderAsync(bool showStatus = true)
@@ -184,7 +199,7 @@ public partial class MainPage : Page
         {
             if (showStatus)
             {
-                SetStatus("Open a folder before refreshing.");
+                SetStatus("Open a folder before refreshing.", InfoBarSeverity.Warning);
             }
 
             return;
@@ -198,9 +213,9 @@ public partial class MainPage : Page
             return;
         }
 
-        SetStatus(success
-            ? $"Refreshed {currentPath}."
-            : $"Unable to refresh folder: {currentPath}", isError: !success);
+        SetStatus(
+            success ? $"Refreshed {currentPath}." : $"Unable to refresh folder: {currentPath}",
+            success ? InfoBarSeverity.Success : InfoBarSeverity.Error);
     }
 
     private async void OnPathBoxKeyDown(object sender, KeyRoutedEventArgs e)
@@ -212,11 +227,11 @@ public partial class MainPage : Page
 
             if (!success)
             {
-                SetStatus($"Path was not found: {PathBox.Text}", isError: true);
+                SetStatus($"Path was not found: {PathBox.Text}", InfoBarSeverity.Error);
                 return;
             }
 
-            SetStatus($"Opened {PathBox.Text.Trim()}.");
+            SetStatus($"Opened {PathBox.Text.Trim()}.", InfoBarSeverity.Success);
         }
     }
 
@@ -230,7 +245,7 @@ public partial class MainPage : Page
         var root = _viewModel.Navigation.CurrentPath;
         if (string.IsNullOrWhiteSpace(root) || string.IsNullOrWhiteSpace(SearchBox.Text))
         {
-            SetStatus("Enter a search term after opening a folder.");
+            SetStatus("Enter a search term after opening a folder.", InfoBarSeverity.Warning);
             return;
         }
 
@@ -249,13 +264,15 @@ public partial class MainPage : Page
                 });
             }
 
-            SetStatus(results.Count == 0
-                ? $"No results for \"{query}\"."
-                : $"Found {results.Count} result(s) for \"{query}\".");
+            SetStatus(
+                results.Count == 0
+                    ? $"No results for \"{query}\"."
+                    : $"Found {results.Count} result(s) for \"{query}\".",
+                results.Count == 0 ? InfoBarSeverity.Warning : InfoBarSeverity.Success);
         }
         catch (Exception ex)
         {
-            SetStatus($"Search failed: {ex.Message}", isError: true);
+            SetStatus($"Search failed: {ex.Message}", InfoBarSeverity.Error);
         }
     }
 
@@ -264,26 +281,26 @@ public partial class MainPage : Page
         var selectedItem = _viewModel.FileList.SelectedItem;
         if (selectedItem is null)
         {
-            SetStatus("Select an item to delete.");
+            SetStatus("Select an item to delete.", InfoBarSeverity.Warning);
             return;
         }
 
         var confirmed = await ConfirmDeleteAsync(selectedItem);
         if (!confirmed)
         {
-            SetStatus("Delete cancelled.");
+            SetStatus("Delete cancelled.", InfoBarSeverity.Warning);
             return;
         }
 
         var result = await _fileOperationsService.DeleteAsync(selectedItem.Path);
         if (!result.IsSuccess)
         {
-            SetStatus(result.Message, isError: true);
+            SetStatus(result.Message, InfoBarSeverity.Error);
             return;
         }
 
         await RefreshCurrentFolderAsync(showStatus: false);
-        SetStatus(result.Message);
+        SetStatus(result.Message, InfoBarSeverity.Success);
     }
 
     private async Task CreateNewFolderAsync()
@@ -291,31 +308,53 @@ public partial class MainPage : Page
         var currentPath = _viewModel.Navigation.CurrentPath;
         if (string.IsNullOrWhiteSpace(currentPath))
         {
-            SetStatus("Open a folder before creating a new folder.");
+            SetStatus("Open a folder before creating a new folder.", InfoBarSeverity.Warning);
             return;
         }
 
         if (!Directory.Exists(currentPath))
         {
-            SetStatus($"Current path is unavailable: {currentPath}", isError: true);
+            SetStatus($"Current path is unavailable: {currentPath}", InfoBarSeverity.Error);
             return;
         }
 
         var folderName = FindAvailableFolderName(currentPath);
-        var result = await _fileOperationsService.CreateDirectoryAsync(currentPath, folderName);
-        if (!result.IsSuccess)
+        while (true)
         {
-            SetStatus(result.Message, isError: true);
-            return;
-        }
+            var result = await _fileOperationsService.CreateDirectoryAsync(currentPath, folderName);
+            if (result.IsSuccess)
+            {
+                await RefreshCurrentFolderAsync(showStatus: false);
+                SelectItemByPath(Path.Combine(currentPath, folderName));
 
-        await RefreshCurrentFolderAsync(showStatus: false);
-        SelectItemByPath(Path.Combine(currentPath, folderName));
+                var renamed = await RenameSelectedItemAsync(showMissingSelectionStatus: false, showCancelledStatus: false);
+                if (!renamed)
+                {
+                    SetStatus(result.Message, InfoBarSeverity.Success);
+                }
 
-        var renamed = await RenameSelectedItemAsync(showMissingSelectionStatus: false, showCancelledStatus: false);
-        if (!renamed)
-        {
-            SetStatus(result.Message);
+                return;
+            }
+
+            if (result.ErrorCode != FileOperationErrorCode.Conflict)
+            {
+                SetStatus(result.Message, InfoBarSeverity.Error);
+                return;
+            }
+
+            var retryName = await PromptForNameAsync(
+                title: "Folder Name Already Exists",
+                initialName: GetNextAvailableName(currentPath, folderName),
+                primaryButtonText: "Create",
+                allowEmptyMessage: "Folder name cannot be empty.");
+
+            if (retryName is null)
+            {
+                SetStatus("Create folder cancelled.", InfoBarSeverity.Warning);
+                return;
+            }
+
+            folderName = retryName;
         }
     }
 
@@ -328,7 +367,7 @@ public partial class MainPage : Page
         {
             if (showMissingSelectionStatus)
             {
-                SetStatus("Select an item to rename.");
+                SetStatus("Select an item to rename.", InfoBarSeverity.Warning);
             }
 
             return false;
@@ -337,40 +376,55 @@ public partial class MainPage : Page
         var currentName = string.IsNullOrWhiteSpace(selectedItem.DisplayName)
             ? Path.GetFileName(selectedItem.Path)
             : selectedItem.DisplayName;
-
-        var newName = await PromptForNewNameAsync(currentName);
-        if (newName is null)
-        {
-            if (showCancelledStatus)
-            {
-                SetStatus("Rename cancelled.");
-            }
-
-            return false;
-        }
-
-        if (string.Equals(newName, currentName, StringComparison.OrdinalIgnoreCase))
-        {
-            if (showCancelledStatus)
-            {
-                SetStatus("Rename cancelled.");
-            }
-
-            return false;
-        }
-
-        var result = await _fileOperationsService.RenameAsync(selectedItem.Path, newName);
-        if (!result.IsSuccess)
-        {
-            SetStatus(result.Message, isError: true);
-            return false;
-        }
-
-        await RefreshCurrentFolderAsync(showStatus: false);
         var parentPath = Path.GetDirectoryName(selectedItem.Path) ?? string.Empty;
-        SelectItemByPath(Path.Combine(parentPath, newName));
-        SetStatus(result.Message);
-        return true;
+        var proposedName = currentName;
+
+        while (true)
+        {
+            var newName = await PromptForNameAsync(
+                title: "Rename Item",
+                initialName: proposedName,
+                primaryButtonText: "Rename",
+                allowEmptyMessage: "Name cannot be empty.");
+
+            if (newName is null)
+            {
+                if (showCancelledStatus)
+                {
+                    SetStatus("Rename cancelled.", InfoBarSeverity.Warning);
+                }
+
+                return false;
+            }
+
+            if (string.Equals(newName, currentName, StringComparison.OrdinalIgnoreCase))
+            {
+                if (showCancelledStatus)
+                {
+                    SetStatus("Rename cancelled.", InfoBarSeverity.Warning);
+                }
+
+                return false;
+            }
+
+            var result = await _fileOperationsService.RenameAsync(selectedItem.Path, newName);
+            if (result.IsSuccess)
+            {
+                await RefreshCurrentFolderAsync(showStatus: false);
+                SelectItemByPath(Path.Combine(parentPath, newName));
+                SetStatus(result.Message, InfoBarSeverity.Success);
+                return true;
+            }
+
+            if (result.ErrorCode != FileOperationErrorCode.Conflict)
+            {
+                SetStatus(result.Message, InfoBarSeverity.Error);
+                return false;
+            }
+
+            proposedName = GetNextAvailableName(parentPath, newName);
+            SetStatus(result.Message, InfoBarSeverity.Warning);
+        }
     }
 
     private async void OnBreadcrumbClicked(object sender, RoutedEventArgs e)
@@ -385,11 +439,11 @@ public partial class MainPage : Page
 
         if (!success)
         {
-            SetStatus($"Unable to open location: {targetPath}", isError: true);
+            SetStatus($"Unable to open location: {targetPath}", InfoBarSeverity.Error);
             return;
         }
 
-        SetStatus($"Opened {targetPath}.");
+        SetStatus($"Opened {targetPath}.", InfoBarSeverity.Success);
     }
 
     private void UpdatePathBox()
@@ -447,9 +501,11 @@ public partial class MainPage : Page
         UpdateBreadcrumbs();
     }
 
-    private void SetStatus(string message, bool isError = false)
+    private void SetStatus(string message, InfoBarSeverity severity = InfoBarSeverity.Informational)
     {
-        StatusTextBlock.Text = isError ? $"Error: {message}" : message;
+        StatusInfoBar.Message = message;
+        StatusInfoBar.Severity = severity;
+        StatusInfoBar.IsOpen = true;
     }
 
     private bool IsTextInputFocused() =>
@@ -491,20 +547,24 @@ public partial class MainPage : Page
         return result == ContentDialogResult.Primary;
     }
 
-    private async Task<string?> PromptForNewNameAsync(string currentName)
+    private async Task<string?> PromptForNameAsync(
+        string title,
+        string initialName,
+        string primaryButtonText,
+        string allowEmptyMessage)
     {
         var textBox = new TextBox
         {
-            Text = currentName
+            Text = initialName
         };
         textBox.SelectAll();
 
         var dialog = new ContentDialog
         {
             XamlRoot = XamlRoot,
-            Title = "Rename Item",
+            Title = title,
             Content = textBox,
-            PrimaryButtonText = "Rename",
+            PrimaryButtonText = primaryButtonText,
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Primary
         };
@@ -518,11 +578,35 @@ public partial class MainPage : Page
         var newName = textBox.Text.Trim();
         if (string.IsNullOrWhiteSpace(newName))
         {
-            SetStatus("Name cannot be empty.", isError: true);
+            SetStatus(allowEmptyMessage, InfoBarSeverity.Warning);
             return null;
         }
 
         return newName;
+    }
+
+    private static string GetNextAvailableName(string parentPath, string preferredName)
+    {
+        var baseName = Path.GetFileNameWithoutExtension(preferredName);
+        if (string.IsNullOrWhiteSpace(baseName))
+        {
+            baseName = preferredName;
+        }
+
+        var extension = Path.GetExtension(preferredName);
+        var candidate = preferredName;
+        var suffix = 2;
+
+        while (Directory.Exists(Path.Combine(parentPath, candidate)) ||
+               File.Exists(Path.Combine(parentPath, candidate)))
+        {
+            candidate = string.IsNullOrWhiteSpace(extension)
+                ? $"{baseName} ({suffix})"
+                : $"{baseName} ({suffix}){extension}";
+            suffix++;
+        }
+
+        return candidate;
     }
 
     private void SelectItemByPath(string path)

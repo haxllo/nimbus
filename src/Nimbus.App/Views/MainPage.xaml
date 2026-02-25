@@ -12,6 +12,7 @@
         <KeyboardAccelerator Key="Left" Modifiers="Menu" Invoked="OnBackAcceleratorInvoked" />
         <KeyboardAccelerator Key="Right" Modifiers="Menu" Invoked="OnForwardAcceleratorInvoked" />
         <KeyboardAccelerator Key="F5" Invoked="OnRefreshAcceleratorInvoked" />
+        <KeyboardAccelerator Key="N" Modifiers="Control" Invoked="OnNewFolderAcceleratorInvoked" />
         <KeyboardAccelerator Key="Delete" Invoked="OnDeleteAcceleratorInvoked" />
         <KeyboardAccelerator Key="F2" Invoked="OnRenameAcceleratorInvoked" />
         <KeyboardAccelerator Key="F" Modifiers="Control" Invoked="OnSearchFocusAcceleratorInvoked" />
@@ -58,7 +59,12 @@
             <views:SidebarView x:Name="Sidebar" Grid.Row="2" Grid.Column="0" DataContext="{Binding Sidebar}" />
             <views:FileListView x:Name="FileList" Grid.Row="2" Grid.Column="1" DataContext="{Binding FileList}" />
             <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Padding="12,8">
-                <TextBlock x:Name="StatusTextBlock" Text="Ready." TextWrapping="Wrap" />
+                <InfoBar
+                    x:Name="StatusInfoBar"
+                    IsOpen="True"
+                    IsClosable="False"
+                    Severity="Informational"
+                    Message="Ready." />
             </Border>
         </Grid>
     </Page.Content>

@@ -51,12 +51,12 @@ Exit Criteria:
 Scope:
 - Breadcrumb UI with clickable segments.
 - Toolbar actions for New Folder, Rename, Delete, Refresh.
-- Keyboard shortcuts (`Alt+Left`, `Alt+Right`, `F2`, `Delete`, `Ctrl+F`).
+- Keyboard shortcuts (`Alt+Left`, `Alt+Right`, `F2`, `F5`, `Ctrl+N`, `Delete`, `Ctrl+F`).
 
 Status:
 - [x] Breadcrumb UI with clickable segments.
 - [x] Toolbar actions for New Folder, Rename, Delete, Refresh.
-- [x] Keyboard shortcuts (`Alt+Left`, `Alt+Right`, `Delete`, `Ctrl+F`).
+- [x] Keyboard shortcuts (`Alt+Left`, `Alt+Right`, `F5`, `Ctrl+N`, `Delete`, `Ctrl+F`).
 - [x] Rename shortcut (`F2`).
 
 Exit Criteria:
@@ -69,6 +69,12 @@ Scope:
 - Packaging and branding polish (`Package.appxmanifest`, assets).
 - Final regression pass on large folders and permission boundaries.
 
+Status:
+- [x] Delete confirmation dialog.
+- [x] Conflict-resolution prompts for create-folder and rename flows.
+- [x] Rich status feedback with severity levels (InfoBar).
+- [ ] Packaging and branding polish (`Package.appxmanifest`, assets).
+
 Exit Criteria:
 - V1 acceptance criteria met in manual verification + automated tests.
 
@@ -79,7 +85,7 @@ Exit Criteria:
 - File operations succeed in temp directories and provide actionable errors on failures.
 
 ## Immediate Next Tasks
-1. Add conflict-resolution UX for rename/new-folder when a target already exists.
-2. Expand keyboard coverage (`Ctrl+N` for New Folder, `F5` refresh in docs/help text).
-3. Add integration-style tests around `MainPageViewModel` for create/rename/delete command flows.
-4. Polish status feedback into richer toast/infobar states (success/warning/error).
+1. Add integration-style tests around `MainPageViewModel` for create/rename/delete command flows.
+2. Add help text/tooltips listing keyboard shortcuts (`Ctrl+N`, `F5`, `F2`, `Ctrl+F`, `Alt+Left`, `Alt+Right`).
+3. Package/branding polish for V1 (`Package.appxmanifest`, final icons/app name).
+4. Run full regression on large folders and permission boundaries.
