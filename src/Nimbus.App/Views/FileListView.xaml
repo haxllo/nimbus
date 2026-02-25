@@ -112,7 +112,7 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Border Background="{StaticResource FileListPanelBrush}" BorderBrush="{StaticResource FileListDividerBrush}" BorderThickness="1" CornerRadius="11">
+    <Border Background="{StaticResource FileListPanelBrush}" BorderBrush="{StaticResource FileListDividerBrush}" BorderThickness="0" CornerRadius="11">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />

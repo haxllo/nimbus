@@ -90,9 +90,9 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="SidebarColumn" Width="260" MinWidth="180" MaxWidth="520" />
-                <ColumnDefinition Width="6" />
+                <ColumnDefinition Width="4" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="6" />
+                <ColumnDefinition Width="4" />
                 <ColumnDefinition x:Name="PreviewColumn" Width="300" MinWidth="220" MaxWidth="620" />
             </Grid.ColumnDefinitions>
 
@@ -113,7 +113,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <StackPanel x:Name="TitleBarDragRegion" Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                             <Ellipse Width="11" Height="11" Fill="#FF5F57" />
                             <Ellipse Width="11" Height="11" Fill="#FEBC2E" />
                             <Ellipse Width="11" Height="11" Fill="#28C840" />
@@ -211,10 +211,10 @@
                 x:Name="SidebarSplitter"
                 Grid.Row="3"
                 Grid.Column="1"
-                Width="6"
+                Width="4"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
-                Background="{StaticResource FinderDividerBrush}"
+                Background="#26A8A8B5"
                 PointerPressed="OnSidebarSplitterPointerPressed"
                 PointerMoved="OnSidebarSplitterPointerMoved"
                 PointerReleased="OnSidebarSplitterPointerReleased"
@@ -224,15 +224,15 @@
                 x:Name="PreviewSplitter"
                 Grid.Row="3"
                 Grid.Column="3"
-                Width="6"
+                Width="4"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
-                Background="{StaticResource FinderDividerBrush}"
+                Background="#26A8A8B5"
                 PointerPressed="OnPreviewSplitterPointerPressed"
                 PointerMoved="OnPreviewSplitterPointerMoved"
                 PointerReleased="OnPreviewSplitterPointerReleased"
                 PointerCanceled="OnPreviewSplitterPointerCanceled" />
-            <Border Grid.Row="3" Grid.Column="4" Margin="8,0,12,0" Padding="12" Background="{StaticResource FinderPanelElevatedBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="11">
+            <Border Grid.Row="3" Grid.Column="4" Margin="8,0,12,0" Padding="12" Background="{StaticResource FinderPanelElevatedBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="0" CornerRadius="11">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Preview" FontSize="16" FontWeight="SemiBold" />
                     <TextBlock Text="Name" FontWeight="SemiBold" />

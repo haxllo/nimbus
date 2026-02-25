@@ -248,7 +248,7 @@ public sealed partial class FileListView : UserControl
             Width = 266,
             Padding = new Thickness(6),
             CornerRadius = new CornerRadius(8),
-            BorderThickness = new Thickness(1),
+            BorderThickness = new Thickness(0),
             BorderBrush = Resources["FileListDividerBrush"] as Microsoft.UI.Xaml.Media.Brush,
             Background = Resources["FileListHeaderBrush"] as Microsoft.UI.Xaml.Media.Brush,
             Child = new StackPanel

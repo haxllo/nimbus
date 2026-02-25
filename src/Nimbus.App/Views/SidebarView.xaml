@@ -41,7 +41,7 @@
         <SolidColorBrush x:Key="ListViewItemForegroundSelectedPointerOver" Color="#173A75" />
     </UserControl.Resources>
 
-    <Border Margin="0,0,0,0" Padding="8,8,8,4" Background="{StaticResource SidebarPanelBrush}" BorderBrush="{StaticResource SidebarDividerBrush}" BorderThickness="1" CornerRadius="11">
+    <Border Margin="0,0,0,0" Padding="8,8,8,4" Background="{StaticResource SidebarPanelBrush}" BorderBrush="{StaticResource SidebarDividerBrush}" BorderThickness="0" CornerRadius="11">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

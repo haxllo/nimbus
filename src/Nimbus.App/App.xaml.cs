@@ -16,6 +16,7 @@ namespace Nimbus.App
         private static readonly string StartupLogPath = Path.Combine(Path.GetTempPath(), "nimbus-startup.log");
 
         public static IServiceProvider Services { get; private set; } = default!;
+        public static Window? MainWindow { get; private set; }
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -40,6 +41,7 @@ namespace Nimbus.App
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
             window ??= new Window();
+            MainWindow = window;
             window.Title = "Nimbus";
 
             if (window.Content is not Frame rootFrame)

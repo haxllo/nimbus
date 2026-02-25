@@ -55,9 +55,15 @@ public partial class MainPage : Page
         FileList.ItemSelectionChanged += OnFileItemSelectionChanged;
         _viewModel.Tabs.Tabs.CollectionChanged += OnTabsCollectionChanged;
         _viewModel.Tabs.PropertyChanged += OnTabsPropertyChanged;
+        Loaded += OnPageLoaded;
         Unloaded += OnPageUnloaded;
 
         _ = InitializeAsync();
+    }
+
+    private void OnPageLoaded(object sender, RoutedEventArgs e)
+    {
+        ConfigureCustomTitleBar();
     }
 
     private async Task InitializeAsync()
@@ -1166,6 +1172,7 @@ public partial class MainPage : Page
 
     private void OnPageUnloaded(object sender, RoutedEventArgs e)
     {
+        Loaded -= OnPageLoaded;
         CompleteSidebarSplitterDrag();
         CompletePreviewSplitterDrag();
         PersistPaneLayout();
@@ -1178,6 +1185,18 @@ public partial class MainPage : Page
         _viewModel.Tabs.PropertyChanged -= OnTabsPropertyChanged;
         CancelActiveSearch();
         CancelActivePreviewLoad();
+    }
+
+    private void ConfigureCustomTitleBar()
+    {
+        var mainWindow = App.MainWindow;
+        if (mainWindow is null)
+        {
+            return;
+        }
+
+        mainWindow.ExtendsContentIntoTitleBar = true;
+        mainWindow.SetTitleBar(TitleBarDragRegion);
     }
 
     private void ApplyPaneLayout()
