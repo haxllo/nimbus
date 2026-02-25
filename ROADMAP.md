@@ -102,6 +102,9 @@ Status:
 - [x] Task 4: Tabbed navigation (`TabsViewModel`, tab strip, `Ctrl+T`/`Ctrl+W`/`Ctrl+Tab`, re-integrated after rollback).
 - [x] Task 5A: Smart collections (saved-search service + sidebar section + execute on selection).
 - [x] Task 5B: Dynamic tags (replace placeholder tags with model/service + tests).
+- [x] Task 5D: Sort behavior wired (`SortSelector` now applies name/date/size asc/desc to list contents).
+- [x] Task 5E: File list icon/thumbnail fallback (`IconGlyph` + image thumbnail path for image files).
+- [x] Task 5F: Resizable layout with persisted pane widths (sidebar + preview widths saved across sessions).
 - [ ] Task 5C: Smart-collection manual verification (`docs/regression-checklist-v2-finder-parity.md`).
 - [ ] Task 6: Finder parity regression and acceptance pass (`docs/regression-checklist-v2-finder-parity.md`).
 
@@ -117,5 +120,4 @@ Exit Criteria:
 
 ## Immediate Next Tasks
 1. [ ] Complete M3 regression pass (`docs/regression-checklist-v1.md`).
-2. [ ] Execute M4 Task 5B: dynamic tags in sidebar and core services.
-3. [ ] Run M4 Task 5C + Task 6 parity regression checklist (`docs/regression-checklist-v2-finder-parity.md`).
+2. [ ] Run M4 Task 5C + Task 6 parity regression checklist (`docs/regression-checklist-v2-finder-parity.md`).

@@ -53,6 +53,15 @@ Pass criteria:
 2. Validate back/forward buttons and `Alt+Left` / `Alt+Right`.
 3. Validate create folder, rename, delete with status feedback.
 4. Validate `Ctrl+F` search focus behavior and Enter-to-search flow.
+5. Change sort mode in toolbar and verify list updates for:
+   - Name (A-Z / Z-A)
+   - Date Modified (Oldest / Newest)
+   - Size (Smallest / Largest)
+6. Verify file list icon rendering:
+   - folders show folder glyph
+   - known file types show non-generic glyphs
+   - image files render thumbnail fallback in icon/gallery/list templates
+7. Drag sidebar and preview splitters, close app, relaunch app, verify pane widths are restored.
 
 Pass criteria:
 - Core file browsing and operations continue to work after parity features.

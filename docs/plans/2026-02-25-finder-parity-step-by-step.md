@@ -100,3 +100,32 @@ Status: Completed
 - Modify: `ROADMAP.md`
 
 Status: Completed
+
+---
+
+## Post-Plan Enhancements (Completed)
+
+### Enhancement A: Sort Selector Behavior
+**Files:**
+- Create: `src/Nimbus.Core/Models/FileSortField.cs`
+- Modify: `src/Nimbus.Core/ViewModels/FileListViewModel.cs`
+- Modify: `src/Nimbus.App/Views/MainPage.xaml`
+- Modify: `src/Nimbus.App/Views/MainPage.xaml.cs`
+- Modify: `tests/Nimbus.Tests/ViewModels/FileListViewModelTests.cs`
+
+### Enhancement B: File List Icon/Thumbnail Fallback
+**Files:**
+- Modify: `src/Nimbus.Core/Models/ShellItemModel.cs`
+- Modify: `src/Nimbus.Core/Services/ShellItemService.cs`
+- Modify: `src/Nimbus.App/Views/FileListView.xaml`
+- Modify: `tests/Nimbus.Tests/Services/ShellItemServiceTests.cs`
+
+### Enhancement C: Resizable + Persisted Pane Layout
+**Files:**
+- Create: `src/Nimbus.Core/Models/PaneLayoutModel.cs`
+- Create: `src/Nimbus.Core/Services/IPaneLayoutService.cs`
+- Create: `src/Nimbus.Core/Services/PaneLayoutService.cs`
+- Modify: `src/Nimbus.App/App.xaml.cs`
+- Modify: `src/Nimbus.App/Views/MainPage.xaml`
+- Modify: `src/Nimbus.App/Views/MainPage.xaml.cs`
+- Create: `tests/Nimbus.Tests/Services/PaneLayoutServiceTests.cs`
