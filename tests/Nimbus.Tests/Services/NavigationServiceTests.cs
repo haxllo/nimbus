@@ -44,4 +44,28 @@ public class NavigationServiceTests
         Assert.Equal("dev", breadcrumbs[2].Label);
         Assert.Equal("C:\\Users\\dev", breadcrumbs[2].Path);
     }
+
+    [Fact]
+    public void CaptureState_And_RestoreState_Retain_History()
+    {
+        var nav = new NavigationService();
+        nav.NavigateTo("C:\\");
+        nav.NavigateTo("C:\\Users");
+        nav.NavigateTo("C:\\Users\\dev");
+        nav.GoBack();
+
+        var snapshot = nav.CaptureState();
+
+        var restored = new NavigationService();
+        restored.RestoreState(snapshot);
+
+        Assert.Equal("C:\\Users", restored.CurrentPath);
+        Assert.True(restored.CanGoBack);
+        Assert.True(restored.CanGoForward);
+
+        restored.GoBack();
+        Assert.Equal("C:\\", restored.CurrentPath);
+        restored.GoForward();
+        Assert.Equal("C:\\Users", restored.CurrentPath);
+    }
 }

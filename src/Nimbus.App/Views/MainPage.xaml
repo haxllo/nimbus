@@ -16,11 +16,16 @@
         <KeyboardAccelerator Key="Delete" Invoked="OnDeleteAcceleratorInvoked" />
         <KeyboardAccelerator Key="F2" Invoked="OnRenameAcceleratorInvoked" />
         <KeyboardAccelerator Key="F" Modifiers="Control" Invoked="OnSearchFocusAcceleratorInvoked" />
+        <KeyboardAccelerator Key="T" Modifiers="Control" Invoked="OnNewTabAcceleratorInvoked" />
+        <KeyboardAccelerator Key="W" Modifiers="Control" Invoked="OnCloseTabAcceleratorInvoked" />
+        <KeyboardAccelerator Key="Tab" Modifiers="Control" Invoked="OnNextTabAcceleratorInvoked" />
+        <KeyboardAccelerator Key="Tab" Modifiers="Control,Shift" Invoked="OnPreviousTabAcceleratorInvoked" />
         <KeyboardAccelerator Key="Space" Invoked="OnQuickLookAcceleratorInvoked" />
     </Page.KeyboardAccelerators>
     <Page.Content>
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -32,7 +37,26 @@
                 <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Padding="12" ColumnSpacing="8">
+            <TabView
+                x:Name="TabsControl"
+                Grid.Row="0"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                Margin="8,8,8,0"
+                CanCloseTabs="True"
+                IsAddTabButtonVisible="True"
+                TabItemsSource="{Binding Tabs.Tabs}"
+                AddTabButtonClick="OnAddTabButtonClick"
+                TabCloseRequested="OnTabCloseRequested"
+                SelectionChanged="OnTabSelectionChanged">
+                <TabView.TabItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                    </DataTemplate>
+                </TabView.TabItemTemplate>
+            </TabView>
+
+            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Padding="12" ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -67,13 +91,13 @@
                 <TextBox x:Name="SearchBox" Grid.Column="9" PlaceholderText="Search" KeyDown="OnSearchBoxKeyDown" ToolTipService.ToolTip="Search (Ctrl+F)" />
             </Grid>
 
-            <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
+            <ScrollViewer Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
                 <StackPanel x:Name="BreadcrumbPanel" Orientation="Horizontal" Spacing="4" Padding="12,4,12,8" />
             </ScrollViewer>
 
-            <views:SidebarView x:Name="Sidebar" Grid.Row="2" Grid.Column="0" DataContext="{Binding Sidebar}" />
-            <views:FileListView x:Name="FileList" Grid.Row="2" Grid.Column="1" DataContext="{Binding FileList}" />
-            <Border Grid.Row="2" Grid.Column="2" Margin="8,0,12,0" Padding="12" BorderThickness="1" CornerRadius="8">
+            <views:SidebarView x:Name="Sidebar" Grid.Row="3" Grid.Column="0" DataContext="{Binding Sidebar}" />
+            <views:FileListView x:Name="FileList" Grid.Row="3" Grid.Column="1" DataContext="{Binding FileList}" />
+            <Border Grid.Row="3" Grid.Column="2" Margin="8,0,12,0" Padding="12" BorderThickness="1" CornerRadius="8">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Preview" FontSize="16" FontWeight="SemiBold" />
                     <TextBlock Text="Name" FontWeight="SemiBold" />
@@ -100,7 +124,7 @@
                     </Border>
                 </StackPanel>
             </Border>
-            <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Padding="12,8">
+            <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Padding="12,8">
                 <InfoBar
                     x:Name="StatusInfoBar"
                     IsOpen="True"

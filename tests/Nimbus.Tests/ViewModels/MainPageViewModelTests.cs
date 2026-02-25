@@ -102,6 +102,82 @@ public class MainPageViewModelTests
         }
     }
 
+    [Fact]
+    public async Task OpenNewTabAsync_Uses_Current_Folder_For_New_Tab()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"nimbus-main-vm-tab-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempRoot);
+
+        try
+        {
+            var viewModel = CreateViewModel();
+            await viewModel.NavigateToAsync(tempRoot);
+
+            var opened = await viewModel.OpenNewTabAsync();
+
+            Assert.True(opened);
+            Assert.Equal(2, viewModel.Tabs.Tabs.Count);
+            Assert.Equal(tempRoot, viewModel.Tabs.ActiveTab?.CurrentPath);
+            Assert.Equal(tempRoot, viewModel.Navigation.CurrentPath);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task CloseCurrentTabAsync_Uses_Right_Neighbor_As_Active_Tab()
+    {
+        var firstRoot = Path.Combine(Path.GetTempPath(), $"nimbus-main-vm-tab-first-{Guid.NewGuid():N}");
+        var secondRoot = Path.Combine(Path.GetTempPath(), $"nimbus-main-vm-tab-second-{Guid.NewGuid():N}");
+        var thirdRoot = Path.Combine(Path.GetTempPath(), $"nimbus-main-vm-tab-third-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(firstRoot);
+        Directory.CreateDirectory(secondRoot);
+        Directory.CreateDirectory(thirdRoot);
+
+        try
+        {
+            var viewModel = CreateViewModel();
+            await viewModel.NavigateToAsync(firstRoot);
+            await viewModel.OpenNewTabAsync();
+            await viewModel.NavigateToAsync(secondRoot);
+            await viewModel.OpenNewTabAsync();
+            await viewModel.NavigateToAsync(thirdRoot);
+
+            var secondTabId = viewModel.Tabs.Tabs[1].Id;
+            var switched = await viewModel.SwitchToTabAsync(secondTabId);
+            Assert.True(switched);
+
+            var closed = await viewModel.CloseCurrentTabAsync();
+
+            Assert.True(closed);
+            Assert.Equal(2, viewModel.Tabs.Tabs.Count);
+            Assert.Equal(thirdRoot, viewModel.Tabs.ActiveTab?.CurrentPath);
+            Assert.Equal(thirdRoot, viewModel.Navigation.CurrentPath);
+        }
+        finally
+        {
+            if (Directory.Exists(firstRoot))
+            {
+                Directory.Delete(firstRoot, recursive: true);
+            }
+
+            if (Directory.Exists(secondRoot))
+            {
+                Directory.Delete(secondRoot, recursive: true);
+            }
+
+            if (Directory.Exists(thirdRoot))
+            {
+                Directory.Delete(thirdRoot, recursive: true);
+            }
+        }
+    }
+
     private static MainPageViewModel CreateViewModel()
     {
         var shellItemService = new ShellItemService();
@@ -110,7 +186,13 @@ public class MainPageViewModelTests
         var fileListViewModel = new FileListViewModel(shellItemService, viewPreferenceService, filePreviewService);
         var navigationViewModel = new NavigationViewModel(new NavigationService());
         var sidebarViewModel = new SidebarViewModel();
+        var tabsViewModel = new TabsViewModel();
         var fileOperationsService = new FileOperationsService();
-        return new MainPageViewModel(sidebarViewModel, fileListViewModel, navigationViewModel, fileOperationsService);
+        return new MainPageViewModel(
+            sidebarViewModel,
+            fileListViewModel,
+            navigationViewModel,
+            tabsViewModel,
+            fileOperationsService);
     }
 }

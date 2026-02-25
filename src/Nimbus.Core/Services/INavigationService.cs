@@ -11,6 +11,8 @@ public interface INavigationService
     void NavigateTo(string path);
     void GoBack();
     void GoForward();
+    NavigationState CaptureState();
+    void RestoreState(NavigationState state);
     IReadOnlyList<string> GetBreadcrumbSegments();
     IReadOnlyList<BreadcrumbItem> GetBreadcrumbItems();
 }

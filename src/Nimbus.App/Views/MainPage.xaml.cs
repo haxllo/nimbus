@@ -18,6 +18,7 @@ public partial class MainPage : Page
     private readonly ISearchService _searchService;
     private CancellationTokenSource? _activeSearchCancellation;
     private CancellationTokenSource? _activePreviewCancellation;
+    private bool _isSyncingTabSelection;
 
     public MainPage()
     {
@@ -181,6 +182,50 @@ public partial class MainPage : Page
         args.Handled = true;
     }
 
+    private async void OnNewTabAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
+        await OpenNewTabAsync();
+        args.Handled = true;
+    }
+
+    private async void OnCloseTabAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
+        await CloseCurrentTabAsync();
+        args.Handled = true;
+    }
+
+    private async void OnNextTabAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
+        await SwitchToNextTabAsync();
+        args.Handled = true;
+    }
+
+    private async void OnPreviousTabAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
+        await SwitchToPreviousTabAsync();
+        args.Handled = true;
+    }
+
     private async void OnQuickLookAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
         if (IsTextInputFocused())
@@ -218,6 +263,56 @@ public partial class MainPage : Page
         };
 
         viewModel.FileList.SetViewModeForCurrentPath(selectedMode);
+    }
+
+    private async void OnAddTabButtonClick(TabView sender, object args)
+    {
+        await OpenNewTabAsync();
+    }
+
+    private async void OnTabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
+    {
+        if (args.Item is not ExplorerTabModel tab)
+        {
+            return;
+        }
+
+        var success = await _viewModel.CloseTabAsync(tab.Id);
+        if (!success)
+        {
+            SetStatus("Cannot close the last tab.", InfoBarSeverity.Warning);
+            return;
+        }
+
+        UpdateNavigationUi();
+        SetStatus($"Closed tab: {tab.Title}.", InfoBarSeverity.Informational);
+    }
+
+    private async void OnTabSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_isSyncingTabSelection)
+        {
+            return;
+        }
+
+        if (TabsControl.SelectedItem is not ExplorerTabModel tab)
+        {
+            return;
+        }
+
+        if (_viewModel.Tabs.ActiveTab?.Id == tab.Id)
+        {
+            return;
+        }
+
+        var switched = await _viewModel.SwitchToTabAsync(tab.Id);
+        if (!switched)
+        {
+            SetStatus($"Unable to switch to tab: {tab.Title}.", InfoBarSeverity.Warning);
+            return;
+        }
+
+        UpdateNavigationUi();
     }
 
     private async Task NavigateBackAsync()
@@ -488,6 +583,48 @@ public partial class MainPage : Page
         return new Uri($"file:///{normalized}");
     }
 
+    private async Task OpenNewTabAsync()
+    {
+        await _viewModel.OpenNewTabAsync();
+        UpdateNavigationUi();
+        SetStatus("Opened new tab.", InfoBarSeverity.Informational);
+    }
+
+    private async Task CloseCurrentTabAsync()
+    {
+        var closed = await _viewModel.CloseCurrentTabAsync();
+        if (!closed)
+        {
+            SetStatus("Cannot close the last tab.", InfoBarSeverity.Warning);
+            return;
+        }
+
+        UpdateNavigationUi();
+        SetStatus("Closed current tab.", InfoBarSeverity.Informational);
+    }
+
+    private async Task SwitchToNextTabAsync()
+    {
+        var switched = await _viewModel.SwitchToNextTabAsync();
+        if (!switched)
+        {
+            return;
+        }
+
+        UpdateNavigationUi();
+    }
+
+    private async Task SwitchToPreviousTabAsync()
+    {
+        var switched = await _viewModel.SwitchToPreviousTabAsync();
+        if (!switched)
+        {
+            return;
+        }
+
+        UpdateNavigationUi();
+    }
+
     private async Task DeleteSelectedItemAsync()
     {
         var selectedItem = _viewModel.FileList.SelectedItem;
@@ -707,10 +844,30 @@ public partial class MainPage : Page
 
     private void UpdateNavigationUi()
     {
+        UpdateTabSelection();
         UpdateViewModeSelector();
         UpdatePathBox();
         UpdateNavButtons();
         UpdateBreadcrumbs();
+    }
+
+    private void UpdateTabSelection()
+    {
+        var activeTab = _viewModel.Tabs.ActiveTab;
+        if (activeTab is null || ReferenceEquals(TabsControl.SelectedItem, activeTab))
+        {
+            return;
+        }
+
+        _isSyncingTabSelection = true;
+        try
+        {
+            TabsControl.SelectedItem = activeTab;
+        }
+        finally
+        {
+            _isSyncingTabSelection = false;
+        }
     }
 
     private void UpdateViewModeSelector()

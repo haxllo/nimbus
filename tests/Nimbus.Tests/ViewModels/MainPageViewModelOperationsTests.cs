@@ -93,7 +93,13 @@ public class MainPageViewModelOperationsTests
         var fileListViewModel = new FileListViewModel(shellItemService, viewPreferenceService, filePreviewService);
         var navigationViewModel = new NavigationViewModel(new NavigationService());
         var sidebarViewModel = new SidebarViewModel();
+        var tabsViewModel = new TabsViewModel();
         var fileOperationsService = new FileOperationsService();
-        return new MainPageViewModel(sidebarViewModel, fileListViewModel, navigationViewModel, fileOperationsService);
+        return new MainPageViewModel(
+            sidebarViewModel,
+            fileListViewModel,
+            navigationViewModel,
+            tabsViewModel,
+            fileOperationsService);
     }
 }

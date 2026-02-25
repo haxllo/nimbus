@@ -59,6 +59,31 @@ public sealed class NavigationService : INavigationService
         CurrentPath = _forward.Pop();
     }
 
+    public NavigationState CaptureState()
+    {
+        return new NavigationState(
+            CurrentPath,
+            _back.ToArray(),
+            _forward.ToArray());
+    }
+
+    public void RestoreState(NavigationState state)
+    {
+        _back.Clear();
+        foreach (var path in state.BackHistory.Reverse())
+        {
+            _back.Push(path);
+        }
+
+        _forward.Clear();
+        foreach (var path in state.ForwardHistory.Reverse())
+        {
+            _forward.Push(path);
+        }
+
+        CurrentPath = state.CurrentPath;
+    }
+
     public IReadOnlyList<string> GetBreadcrumbSegments()
     {
         return GetBreadcrumbItems().Select(i => i.Label).ToArray();

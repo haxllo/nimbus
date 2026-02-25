@@ -80,6 +80,7 @@ namespace Nimbus.App
             services.AddSingleton<SidebarViewModel>();
             services.AddSingleton<FileListViewModel>();
             services.AddSingleton<NavigationViewModel>();
+            services.AddSingleton<TabsViewModel>();
             services.AddSingleton<MainPageViewModel>();
         }
 

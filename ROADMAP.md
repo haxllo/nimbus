@@ -99,7 +99,7 @@ Status:
 - [x] Task 1: Finder-like shell layout (grouped sidebar, top view/sort controls, preview host first pass).
 - [x] Task 2: View modes (`FileViewMode` + path preference service + UI binding first pass).
 - [x] Task 3: Preview pane + quick look (`IFilePreviewService` + selection preview loading + `Space` quick look first pass).
-- [ ] Task 4: Tabbed navigation.
+- [x] Task 4: Tabbed navigation (`TabsViewModel`, tab strip, `Ctrl+T`/`Ctrl+W`/`Ctrl+Tab` first pass).
 - [ ] Task 5: Tags + smart collections.
 - [ ] Task 6: Finder parity regression and acceptance pass.
 
@@ -115,6 +115,5 @@ Exit Criteria:
 
 ## Immediate Next Tasks
 1. [ ] Complete M3 regression pass (`docs/regression-checklist-v1.md`).
-2. [ ] Execute M4 Task 4: tabbed navigation.
-3. [ ] Execute M4 Task 5: tags + smart collections.
-4. [ ] Execute M4 Task 6: finder parity regression and acceptance pass.
+2. [ ] Execute M4 Task 5: tags + smart collections.
+3. [ ] Execute M4 Task 6: finder parity regression and acceptance pass.

@@ -27,4 +27,8 @@ public sealed class NavigationViewModel
     public void GoBack() => _navigationService.GoBack();
 
     public void GoForward() => _navigationService.GoForward();
+
+    public NavigationState CaptureState() => _navigationService.CaptureState();
+
+    public void RestoreState(NavigationState state) => _navigationService.RestoreState(state);
 }
