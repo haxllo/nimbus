@@ -183,12 +183,17 @@ public partial class MainPage : Page
             return;
         }
 
-        if (ViewModeSelector.SelectedIndex < 0)
+        if (sender is not ComboBox comboBox)
         {
             return;
         }
 
-        var selectedMode = ViewModeSelector.SelectedIndex switch
+        if (comboBox.SelectedIndex < 0)
+        {
+            return;
+        }
+
+        var selectedMode = comboBox.SelectedIndex switch
         {
             1 => FileViewMode.Icon,
             2 => FileViewMode.Column,
