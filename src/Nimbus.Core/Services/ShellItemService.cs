@@ -4,6 +4,21 @@ namespace Nimbus.Core.Services;
 
 public sealed class ShellItemService : IShellItemService
 {
+    private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp", ".tif", ".tiff", ".ico"
+    };
+
+    private static readonly HashSet<string> ArchiveExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".zip", ".rar", ".7z", ".tar", ".gz"
+    };
+
+    private static readonly HashSet<string> CodeExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".cs", ".ts", ".js", ".tsx", ".jsx", ".json", ".xml", ".yaml", ".yml", ".md"
+    };
+
     public Task<IReadOnlyList<ShellItemModel>> EnumerateAsync(string path, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(path))
@@ -72,10 +87,14 @@ public sealed class ShellItemService : IShellItemService
         try
         {
             var isFolder = Directory.Exists(entry);
+            var extension = isFolder ? string.Empty : Path.GetExtension(entry);
             var model = new ShellItemModel(entry)
             {
                 DisplayName = GetDisplayName(entry),
-                IsFolder = isFolder
+                IsFolder = isFolder,
+                IconKey = BuildIconKey(isFolder, extension),
+                IconGlyph = BuildIconGlyph(isFolder, extension),
+                ThumbnailPath = BuildThumbnailPath(isFolder, extension, entry)
             };
 
             if (isFolder)
@@ -116,5 +135,60 @@ public sealed class ShellItemService : IShellItemService
         {
             return null;
         }
+    }
+
+    private static string BuildIconKey(bool isFolder, string? extension)
+    {
+        if (isFolder)
+        {
+            return "folder";
+        }
+
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            return "file";
+        }
+
+        return extension.Trim().ToLowerInvariant();
+    }
+
+    private static string BuildIconGlyph(bool isFolder, string? extension)
+    {
+        if (isFolder)
+        {
+            return "\uE8B7";
+        }
+
+        if (string.IsNullOrWhiteSpace(extension))
+        {
+            return "\uE8A5";
+        }
+
+        if (ImageExtensions.Contains(extension))
+        {
+            return "\uEB9F";
+        }
+
+        if (ArchiveExtensions.Contains(extension))
+        {
+            return "\uE7B8";
+        }
+
+        if (CodeExtensions.Contains(extension))
+        {
+            return "\uE943";
+        }
+
+        return "\uE8A5";
+    }
+
+    private static string? BuildThumbnailPath(bool isFolder, string? extension, string path)
+    {
+        if (isFolder || string.IsNullOrWhiteSpace(extension))
+        {
+            return null;
+        }
+
+        return ImageExtensions.Contains(extension) ? path : null;
     }
 }

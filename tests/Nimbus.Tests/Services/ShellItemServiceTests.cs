@@ -45,4 +45,38 @@ public class ShellItemServiceTests
 
         Assert.Empty(items);
     }
+
+    [Fact]
+    public async Task EnumerateFolder_Assigns_Icon_Metadata_And_Image_Thumbnail_Path()
+    {
+        var svc = new ShellItemService();
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"nimbus-shell-icons-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempRoot);
+
+        try
+        {
+            Directory.CreateDirectory(Path.Combine(tempRoot, "folder"));
+            var imagePath = Path.Combine(tempRoot, "photo.png");
+            await File.WriteAllTextAsync(imagePath, "x");
+
+            var items = await svc.EnumerateAsync(tempRoot);
+
+            var folder = Assert.Single(items.Where(item => item.IsFolder));
+            Assert.Equal("folder", folder.IconKey);
+            Assert.Equal("\uE8B7", folder.IconGlyph);
+            Assert.Null(folder.ThumbnailPath);
+
+            var image = Assert.Single(items.Where(item => string.Equals(item.DisplayName, "photo.png", StringComparison.OrdinalIgnoreCase)));
+            Assert.Equal(".png", image.IconKey);
+            Assert.Equal("\uEB9F", image.IconGlyph);
+            Assert.Equal(imagePath, image.ThumbnailPath);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
 }

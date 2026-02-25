@@ -14,7 +14,16 @@
 
         <DataTemplate x:Key="ListModeTemplate">
             <StackPanel Orientation="Horizontal" Spacing="12" Margin="16,4">
-                <TextBlock Text="{Binding DisplayName}" Width="280" TextTrimming="CharacterEllipsis" />
+                <Grid Width="24" Height="24">
+                    <TextBlock
+                        Text="{Binding IconGlyph}"
+                        FontFamily="Segoe MDL2 Assets"
+                        FontSize="16"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+                    <Image Source="{Binding ThumbnailPath}" Stretch="UniformToFill" />
+                </Grid>
+                <TextBlock Text="{Binding DisplayName}" Width="248" TextTrimming="CharacterEllipsis" />
                 <TextBlock Text="{Binding DateModified}" Width="160" />
                 <TextBlock Text="{Binding SizeBytes}" Width="120" />
             </StackPanel>
@@ -23,7 +32,16 @@
         <DataTemplate x:Key="IconModeTemplate">
             <StackPanel Width="140" Height="120" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Border Height="72" CornerRadius="6">
-                    <TextBlock Text="FILE" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.65" />
+                    <Grid>
+                        <TextBlock
+                            Text="{Binding IconGlyph}"
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="28"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Opacity="0.85" />
+                        <Image Source="{Binding ThumbnailPath}" Stretch="UniformToFill" />
+                    </Grid>
                 </Border>
                 <TextBlock Text="{Binding DisplayName}" Margin="0,8,0,0" TextAlignment="Center" TextWrapping="WrapWholeWords" MaxLines="2" TextTrimming="CharacterEllipsis" />
             </StackPanel>
@@ -31,6 +49,15 @@
 
         <DataTemplate x:Key="ColumnModeTemplate">
             <StackPanel Orientation="Horizontal" Spacing="12" Margin="16,4">
+                <Grid Width="24" Height="24">
+                    <TextBlock
+                        Text="{Binding IconGlyph}"
+                        FontFamily="Segoe MDL2 Assets"
+                        FontSize="16"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center" />
+                    <Image Source="{Binding ThumbnailPath}" Stretch="UniformToFill" />
+                </Grid>
                 <StackPanel Width="280">
                     <TextBlock Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
                     <TextBlock Text="{Binding Path}" FontSize="11" Opacity="0.75" TextTrimming="CharacterEllipsis" />
@@ -44,7 +71,16 @@
             <Border Width="220" Height="180" Margin="10" Padding="12" CornerRadius="8">
                 <StackPanel Spacing="8">
                     <Border Height="90" CornerRadius="6">
-                        <TextBlock Text="PREVIEW" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.65" />
+                        <Grid>
+                            <TextBlock
+                                Text="{Binding IconGlyph}"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="32"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Opacity="0.85" />
+                            <Image Source="{Binding ThumbnailPath}" Stretch="UniformToFill" />
+                        </Grid>
                     </Border>
                     <TextBlock Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
                     <TextBlock Text="{Binding DateModified}" FontSize="11" Opacity="0.8" />

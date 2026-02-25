@@ -18,4 +18,8 @@ public sealed class ShellItemModel
     public DateTimeOffset? DateModified { get; set; }
 
     public string? IconKey { get; set; }
+
+    public string IconGlyph { get; set; } = "\uE8A5";
+
+    public string? ThumbnailPath { get; set; }
 }
