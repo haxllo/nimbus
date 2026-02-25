@@ -108,6 +108,7 @@ public class MainPageViewModelTests
         var fileListViewModel = new FileListViewModel(shellItemService);
         var navigationViewModel = new NavigationViewModel(new NavigationService());
         var sidebarViewModel = new SidebarViewModel();
-        return new MainPageViewModel(sidebarViewModel, fileListViewModel, navigationViewModel);
+        var fileOperationsService = new FileOperationsService();
+        return new MainPageViewModel(sidebarViewModel, fileListViewModel, navigationViewModel, fileOperationsService);
     }
 }

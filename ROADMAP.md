@@ -41,6 +41,7 @@ Status:
 - [x] Added UI status bar feedback for navigation, search, and file operation failures.
 - [x] Added file operation failure tests for missing source, destination conflicts, and unauthorized access mapping.
 - [x] Added rename/delete/cancellation edge-case tests in `FileOperationsServiceTests`.
+- [x] Added integration-style `MainPageViewModel` tests for create/rename/delete operation flows.
 
 Exit Criteria:
 - No unhandled exceptions when navigating missing or inaccessible folders.
@@ -58,12 +59,13 @@ Status:
 - [x] Toolbar actions for New Folder, Rename, Delete, Refresh.
 - [x] Keyboard shortcuts (`Alt+Left`, `Alt+Right`, `F5`, `Ctrl+N`, `Delete`, `Ctrl+F`).
 - [x] Rename shortcut (`F2`).
+- [x] Added shortcut help tooltips in toolbar/search UI.
 
 Exit Criteria:
 - Full keyboard navigation for core actions.
 - Breadcrumb clicks navigate correctly and update history/list.
 
-### M3: V1 Completion (Planned)
+### M3: V1 Completion (In Progress)
 Scope:
 - File operation UX (confirmation, conflict handling, status messages).
 - Packaging and branding polish (`Package.appxmanifest`, assets).
@@ -73,6 +75,7 @@ Status:
 - [x] Delete confirmation dialog.
 - [x] Conflict-resolution prompts for create-folder and rename flows.
 - [x] Rich status feedback with severity levels (InfoBar).
+- [x] Manifest naming polish (`DisplayName`: `Nimbus`, description: `Nimbus File Explorer`).
 - [ ] Packaging and branding polish (`Package.appxmanifest`, assets).
 
 Exit Criteria:
@@ -85,7 +88,7 @@ Exit Criteria:
 - File operations succeed in temp directories and provide actionable errors on failures.
 
 ## Immediate Next Tasks
-1. Add integration-style tests around `MainPageViewModel` for create/rename/delete command flows.
-2. Add help text/tooltips listing keyboard shortcuts (`Ctrl+N`, `F5`, `F2`, `Ctrl+F`, `Alt+Left`, `Alt+Right`).
-3. Package/branding polish for V1 (`Package.appxmanifest`, final icons/app name).
-4. Run full regression on large folders and permission boundaries.
+1. [x] Add integration-style tests around `MainPageViewModel` for create/rename/delete command flows.
+2. [x] Add help text/tooltips listing keyboard shortcuts (`Ctrl+N`, `F5`, `F2`, `Ctrl+F`, `Alt+Left`, `Alt+Right`).
+3. [ ] Package/branding polish for V1 (`Package.appxmanifest`, final icons/app name; manifest text completed).
+4. [ ] Run full regression on large folders and permission boundaries (`docs/regression-checklist-v1.md`).

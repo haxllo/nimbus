@@ -15,7 +15,6 @@ public partial class MainPage : Page
 {
     private readonly MainPageViewModel _viewModel;
     private readonly ISearchService _searchService;
-    private readonly IFileOperationsService _fileOperationsService;
 
     public MainPage()
     {
@@ -23,7 +22,6 @@ public partial class MainPage : Page
 
         _viewModel = App.Services.GetRequiredService<MainPageViewModel>();
         _searchService = App.Services.GetRequiredService<ISearchService>();
-        _fileOperationsService = App.Services.GetRequiredService<IFileOperationsService>();
         DataContext = _viewModel;
 
         Sidebar.LocationSelected += OnSidebarLocationSelected;
@@ -292,14 +290,13 @@ public partial class MainPage : Page
             return;
         }
 
-        var result = await _fileOperationsService.DeleteAsync(selectedItem.Path);
+        var result = await _viewModel.DeleteItemAsync(selectedItem.Path);
         if (!result.IsSuccess)
         {
             SetStatus(result.Message, InfoBarSeverity.Error);
             return;
         }
 
-        await RefreshCurrentFolderAsync(showStatus: false);
         SetStatus(result.Message, InfoBarSeverity.Success);
     }
 
@@ -321,10 +318,9 @@ public partial class MainPage : Page
         var folderName = FindAvailableFolderName(currentPath);
         while (true)
         {
-            var result = await _fileOperationsService.CreateDirectoryAsync(currentPath, folderName);
+            var result = await _viewModel.CreateFolderAsync(currentPath, folderName);
             if (result.IsSuccess)
             {
-                await RefreshCurrentFolderAsync(showStatus: false);
                 SelectItemByPath(Path.Combine(currentPath, folderName));
 
                 var renamed = await RenameSelectedItemAsync(showMissingSelectionStatus: false, showCancelledStatus: false);
@@ -407,10 +403,9 @@ public partial class MainPage : Page
                 return false;
             }
 
-            var result = await _fileOperationsService.RenameAsync(selectedItem.Path, newName);
+            var result = await _viewModel.RenameItemAsync(selectedItem.Path, newName);
             if (result.IsSuccess)
             {
-                await RefreshCurrentFolderAsync(showStatus: false);
                 SelectItemByPath(Path.Combine(parentPath, newName));
                 SetStatus(result.Message, InfoBarSeverity.Success);
                 return true;
