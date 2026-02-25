@@ -1,0 +1,11 @@
+﻿<UserControl
+    x:Class="Nimbus.App.Views.SidebarView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Nimbus.App.Views">
+
+    <Grid>
+        <TextBlock Text="Sidebar" Margin="12,8,12,8" />
+    </Grid>
+</UserControl>
+
