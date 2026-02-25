@@ -23,3 +23,9 @@ $out = '.\src\Nimbus.App\obj\Debug\net8.0-windows10.0.19041.0\output.json'
   Where-Object { $_.ErrorCode -or ($_.Message -match 'error|exception') } |
   Format-List
 ```
+
+If `output.json` does not exist, run direct compiler diagnostics:
+
+```powershell
+pwsh -File scripts/diagnose-xaml-compiler.ps1
+```
