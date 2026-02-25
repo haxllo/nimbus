@@ -32,12 +32,14 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="260" />
+                <ColumnDefinition x:Name="SidebarColumn" Width="260" MinWidth="180" MaxWidth="520" />
+                <ColumnDefinition Width="6" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="6" />
+                <ColumnDefinition x:Name="PreviewColumn" Width="300" MinWidth="220" MaxWidth="620" />
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Padding="12" ColumnSpacing="8">
+            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Padding="12" ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -75,7 +77,7 @@
                 <TextBox x:Name="SearchBox" Grid.Column="9" PlaceholderText="Search" KeyDown="OnSearchBoxKeyDown" ToolTipService.ToolTip="Search (Ctrl+F)" />
             </Grid>
 
-            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Padding="12,0,12,4" ColumnSpacing="8">
+            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Padding="12,0,12,4" ColumnSpacing="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -89,13 +91,33 @@
                 </StackPanel>
             </Grid>
 
-            <ScrollViewer Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
+            <ScrollViewer Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
                 <StackPanel x:Name="BreadcrumbPanel" Orientation="Horizontal" Spacing="4" Padding="12,4,12,8" />
             </ScrollViewer>
 
             <views:SidebarView x:Name="Sidebar" Grid.Row="3" Grid.Column="0" DataContext="{Binding Sidebar}" />
-            <views:FileListView x:Name="FileList" Grid.Row="3" Grid.Column="1" DataContext="{Binding FileList}" />
-            <Border Grid.Row="3" Grid.Column="2" Margin="8,0,12,0" Padding="12" BorderThickness="1" CornerRadius="8">
+            <GridSplitter
+                Grid.Row="3"
+                Grid.Column="1"
+                Width="6"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                ResizeDirection="Columns"
+                ResizeBehavior="PreviousAndNext"
+                ShowsPreview="True"
+                PointerReleased="OnPaneSplitterPointerReleased" />
+            <views:FileListView x:Name="FileList" Grid.Row="3" Grid.Column="2" DataContext="{Binding FileList}" />
+            <GridSplitter
+                Grid.Row="3"
+                Grid.Column="3"
+                Width="6"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                ResizeDirection="Columns"
+                ResizeBehavior="PreviousAndNext"
+                ShowsPreview="True"
+                PointerReleased="OnPaneSplitterPointerReleased" />
+            <Border Grid.Row="3" Grid.Column="4" Margin="8,0,12,0" Padding="12" BorderThickness="1" CornerRadius="8">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Preview" FontSize="16" FontWeight="SemiBold" />
                     <TextBlock Text="Name" FontWeight="SemiBold" />
@@ -117,7 +139,7 @@
                     </Border>
                 </StackPanel>
             </Border>
-            <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Padding="12,8">
+            <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5" Padding="12,8">
                 <InfoBar
                     x:Name="StatusInfoBar"
                     IsOpen="True"

@@ -17,6 +17,7 @@ public partial class MainPage : Page
 {
     private readonly MainPageViewModel _viewModel;
     private readonly ISearchService _searchService;
+    private readonly IPaneLayoutService _paneLayoutService;
     private CancellationTokenSource? _activeSearchCancellation;
     private CancellationTokenSource? _activePreviewCancellation;
 
@@ -26,7 +27,9 @@ public partial class MainPage : Page
 
         _viewModel = App.Services.GetRequiredService<MainPageViewModel>();
         _searchService = App.Services.GetRequiredService<ISearchService>();
+        _paneLayoutService = App.Services.GetRequiredService<IPaneLayoutService>();
         DataContext = _viewModel;
+        ApplyPaneLayout();
 
         Sidebar.LocationSelected += OnSidebarLocationSelected;
         Sidebar.SavedSearchSelected += OnSidebarSavedSearchSelected;
@@ -337,6 +340,11 @@ public partial class MainPage : Page
         };
 
         viewModel.FileList.SetSort(sortField, descending);
+    }
+
+    private void OnPaneSplitterPointerReleased(object sender, PointerRoutedEventArgs e)
+    {
+        PersistPaneLayout();
     }
 
     private async Task OpenNewTabAsync()
@@ -983,6 +991,7 @@ public partial class MainPage : Page
 
     private void OnPageUnloaded(object sender, RoutedEventArgs e)
     {
+        PersistPaneLayout();
         Sidebar.LocationSelected -= OnSidebarLocationSelected;
         Sidebar.SavedSearchSelected -= OnSidebarSavedSearchSelected;
         Sidebar.TagSelected -= OnSidebarTagSelected;
@@ -992,6 +1001,23 @@ public partial class MainPage : Page
         _viewModel.Tabs.PropertyChanged -= OnTabsPropertyChanged;
         CancelActiveSearch();
         CancelActivePreviewLoad();
+    }
+
+    private void ApplyPaneLayout()
+    {
+        var layout = _paneLayoutService.GetLayout();
+        SidebarColumn.Width = new GridLength(layout.SidebarWidth, GridUnitType.Pixel);
+        PreviewColumn.Width = new GridLength(layout.PreviewWidth, GridUnitType.Pixel);
+    }
+
+    private void PersistPaneLayout()
+    {
+        if (SidebarColumn.ActualWidth <= 0 || PreviewColumn.ActualWidth <= 0)
+        {
+            return;
+        }
+
+        _paneLayoutService.SaveLayout(SidebarColumn.ActualWidth, PreviewColumn.ActualWidth);
     }
 
     private CancellationTokenSource StartSearch()
