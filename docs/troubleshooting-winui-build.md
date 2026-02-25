@@ -29,3 +29,7 @@ If `output.json` does not exist, run direct compiler diagnostics:
 ```powershell
 pwsh -File scripts/diagnose-xaml-compiler.ps1
 ```
+
+The script now:
+- Captures `XamlCompiler.exe` stdout/stderr to log files.
+- Falls back to recent Windows Application event logs for `XamlCompiler.exe` crash details if no text output is produced.
