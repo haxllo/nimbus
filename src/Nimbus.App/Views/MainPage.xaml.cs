@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Nimbus.Core.Models;
 using Nimbus.Core.Services;
 using Nimbus.Core.ViewModels;
@@ -999,6 +1000,10 @@ public partial class MainPage : Page
                 Content = breadcrumb.Label,
                 Tag = breadcrumb.Path
             };
+            if (Resources["FinderBreadcrumbButtonStyle"] is Style breadcrumbStyle)
+            {
+                button.Style = breadcrumbStyle;
+            }
             button.Click += OnBreadcrumbClicked;
             BreadcrumbPanel.Children.Add(button);
 
@@ -1006,7 +1011,8 @@ public partial class MainPage : Page
             {
                 BreadcrumbPanel.Children.Add(new TextBlock
                 {
-                    Text = ">",
+                    Text = "\uE76C",
+                    FontFamily = new FontFamily("Segoe MDL2 Assets"),
                     VerticalAlignment = VerticalAlignment.Center
                 });
             }
@@ -1028,6 +1034,18 @@ public partial class MainPage : Page
                 MaxWidth = 220
             };
             button.Click += OnTabClicked;
+
+            if (activeTabId == tab.Id)
+            {
+                if (Resources["FinderTabButtonActiveStyle"] is Style activeStyle)
+                {
+                    button.Style = activeStyle;
+                }
+            }
+            else if (Resources["FinderTabButtonStyle"] is Style tabStyle)
+            {
+                button.Style = tabStyle;
+            }
 
             if (activeTabId == tab.Id)
             {

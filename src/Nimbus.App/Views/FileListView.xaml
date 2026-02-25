@@ -4,6 +4,19 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Nimbus.App.Views">
     <UserControl.Resources>
+        <SolidColorBrush x:Key="FileListPanelBrush" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="FileListHeaderBrush" Color="#F2F3F6" />
+        <SolidColorBrush x:Key="FileListDividerBrush" Color="#D2D2D8" />
+        <SolidColorBrush x:Key="FileListMutedBrush" Color="#6A6A72" />
+
+        <Style x:Key="FinderFileListItemStyle" TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="MinHeight" Value="34" />
+            <Setter Property="Padding" Value="2" />
+            <Setter Property="Margin" Value="4,1" />
+            <Setter Property="CornerRadius" Value="6" />
+        </Style>
+
         <ItemsPanelTemplate x:Key="ListItemsPanel">
             <ItemsStackPanel />
         </ItemsPanelTemplate>
@@ -13,30 +26,30 @@
         </ItemsPanelTemplate>
 
         <DataTemplate x:Key="ListModeTemplate">
-            <StackPanel Orientation="Horizontal" Spacing="12" Margin="16,4">
-                <Grid Width="24" Height="24">
+            <StackPanel Orientation="Horizontal" Spacing="12" Margin="12,3">
+                <Grid Width="20" Height="20">
                     <TextBlock
                         Text="{Binding IconGlyph}"
                         FontFamily="Segoe MDL2 Assets"
-                        FontSize="16"
+                        FontSize="14"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center" />
                     <Image Source="{Binding ThumbnailPath}" Stretch="UniformToFill" />
                 </Grid>
                 <TextBlock Text="{Binding DisplayName}" Width="248" TextTrimming="CharacterEllipsis" />
-                <TextBlock Text="{Binding DateModified}" Width="160" />
-                <TextBlock Text="{Binding SizeBytes}" Width="120" />
+                <TextBlock Text="{Binding DateModified}" Width="160" Foreground="{StaticResource FileListMutedBrush}" />
+                <TextBlock Text="{Binding SizeBytes}" Width="120" Foreground="{StaticResource FileListMutedBrush}" />
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="IconModeTemplate">
-            <StackPanel Width="140" Height="120" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Border Height="72" CornerRadius="6">
+            <StackPanel Width="128" Height="118" Margin="8" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border Height="70" CornerRadius="8" Background="{StaticResource FileListHeaderBrush}">
                     <Grid>
                         <TextBlock
                             Text="{Binding IconGlyph}"
                             FontFamily="Segoe MDL2 Assets"
-                            FontSize="28"
+                            FontSize="24"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Opacity="0.85" />
@@ -48,27 +61,27 @@
         </DataTemplate>
 
         <DataTemplate x:Key="ColumnModeTemplate">
-            <StackPanel Orientation="Horizontal" Spacing="12" Margin="16,4">
-                <Grid Width="24" Height="24">
+            <StackPanel Orientation="Horizontal" Spacing="12" Margin="12,3">
+                <Grid Width="20" Height="20">
                     <TextBlock
                         Text="{Binding IconGlyph}"
                         FontFamily="Segoe MDL2 Assets"
-                        FontSize="16"
+                        FontSize="14"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center" />
                     <Image Source="{Binding ThumbnailPath}" Stretch="UniformToFill" />
                 </Grid>
                 <StackPanel Width="280">
                     <TextBlock Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
-                    <TextBlock Text="{Binding Path}" FontSize="11" Opacity="0.75" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding Path}" FontSize="11" Foreground="{StaticResource FileListMutedBrush}" TextTrimming="CharacterEllipsis" />
                 </StackPanel>
-                <TextBlock Text="{Binding DateModified}" Width="160" />
-                <TextBlock Text="{Binding SizeBytes}" Width="120" />
+                <TextBlock Text="{Binding DateModified}" Width="160" Foreground="{StaticResource FileListMutedBrush}" />
+                <TextBlock Text="{Binding SizeBytes}" Width="120" Foreground="{StaticResource FileListMutedBrush}" />
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="GalleryModeTemplate">
-            <Border Width="220" Height="180" Margin="10" Padding="12" CornerRadius="8">
+            <Border Width="210" Height="174" Margin="10" Padding="12" CornerRadius="10" Background="{StaticResource FileListHeaderBrush}" BorderBrush="{StaticResource FileListDividerBrush}" BorderThickness="1">
                 <StackPanel Spacing="8">
                     <Border Height="90" CornerRadius="6">
                         <Grid>
@@ -83,34 +96,39 @@
                         </Grid>
                     </Border>
                     <TextBlock Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis" />
-                    <TextBlock Text="{Binding DateModified}" FontSize="11" Opacity="0.8" />
+                    <TextBlock Text="{Binding DateModified}" FontSize="11" Foreground="{StaticResource FileListMutedBrush}" />
                 </StackPanel>
             </Border>
         </DataTemplate>
     </UserControl.Resources>
 
+    <Border Background="{StaticResource FileListPanelBrush}" BorderBrush="{StaticResource FileListDividerBrush}" BorderThickness="1" CornerRadius="10">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid x:Name="ListHeaderGrid" ColumnSpacing="12" Padding="16,8,16,6">
+        <Grid x:Name="ListHeaderGrid" ColumnSpacing="12" Padding="16,8,16,6" Background="{StaticResource FileListHeaderBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="280" />
                 <ColumnDefinition Width="160" />
                 <ColumnDefinition Width="120" />
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Name" FontWeight="SemiBold" />
-            <TextBlock Grid.Column="1" Text="Date Modified" FontWeight="SemiBold" />
-            <TextBlock Grid.Column="2" Text="Size" FontWeight="SemiBold" />
+            <TextBlock Text="Name" FontWeight="SemiBold" Foreground="{StaticResource FileListMutedBrush}" />
+            <TextBlock Grid.Column="1" Text="Date Modified" FontWeight="SemiBold" Foreground="{StaticResource FileListMutedBrush}" />
+            <TextBlock Grid.Column="2" Text="Size" FontWeight="SemiBold" Foreground="{StaticResource FileListMutedBrush}" />
         </Grid>
         <ListView
             x:Name="FileList"
             Grid.Row="1"
+            ItemContainerStyle="{StaticResource FinderFileListItemStyle}"
+            BorderThickness="0"
+            Background="Transparent"
             ItemsSource="{Binding Items}"
             ItemsPanel="{StaticResource ListItemsPanel}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
             SelectionChanged="OnSelectionChanged"
             DoubleTapped="OnDoubleTapped" />
     </Grid>
+    </Border>
 </UserControl>

@@ -8,6 +8,50 @@
     xmlns:views="using:Nimbus.App.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
+    <Page.Resources>
+        <SolidColorBrush x:Key="FinderWindowBrush" Color="#F3F3F5" />
+        <SolidColorBrush x:Key="FinderChromeBrush" Color="#ECECF0" />
+        <SolidColorBrush x:Key="FinderPanelBrush" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="FinderDividerBrush" Color="#D2D2D8" />
+        <SolidColorBrush x:Key="FinderSubtleTextBrush" Color="#5E5E65" />
+        <SolidColorBrush x:Key="FinderTabBrush" Color="#E4E4EA" />
+        <SolidColorBrush x:Key="FinderTabActiveBrush" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="FinderBlueBrush" Color="#0A84FF" />
+
+        <Style x:Key="FinderToolbarButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="MinWidth" Value="82" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{StaticResource FinderDividerBrush}" />
+            <Setter Property="Background" Value="{StaticResource FinderPanelBrush}" />
+        </Style>
+
+        <Style x:Key="FinderTabButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Padding" Value="14,0" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{StaticResource FinderDividerBrush}" />
+            <Setter Property="Background" Value="{StaticResource FinderTabBrush}" />
+        </Style>
+
+        <Style x:Key="FinderTabButtonActiveStyle" TargetType="Button" BasedOn="{StaticResource FinderTabButtonStyle}">
+            <Setter Property="Background" Value="{StaticResource FinderTabActiveBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource FinderBlueBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource FinderBlueBrush}" />
+        </Style>
+
+        <Style x:Key="FinderBreadcrumbButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{StaticResource FinderSubtleTextBrush}" />
+        </Style>
+    </Page.Resources>
     <Page.KeyboardAccelerators>
         <KeyboardAccelerator Key="Left" Modifiers="Menu" Invoked="OnBackAcceleratorInvoked" />
         <KeyboardAccelerator Key="Right" Modifiers="Menu" Invoked="OnForwardAcceleratorInvoked" />
@@ -23,7 +67,7 @@
         <KeyboardAccelerator Key="Space" Invoked="OnQuickLookAcceleratorInvoked" />
     </Page.KeyboardAccelerators>
     <Page.Content>
-        <Grid>
+        <Grid Background="{StaticResource FinderWindowBrush}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -39,59 +83,63 @@
                 <ColumnDefinition x:Name="PreviewColumn" Width="300" MinWidth="220" MaxWidth="620" />
             </Grid.ColumnDefinitions>
 
-            <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Padding="12" ColumnSpacing="8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="130" />
-                    <ColumnDefinition Width="160" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="220" />
-                </Grid.ColumnDefinitions>
+            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Margin="12,10,12,6" Padding="10,8" Background="{StaticResource FinderChromeBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="12">
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="130" />
+                        <ColumnDefinition Width="170" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="230" />
+                    </Grid.ColumnDefinitions>
 
-                <Button x:Name="BackButton" Content="Back" Click="OnBackClicked" ToolTipService.ToolTip="Back (Alt+Left)" />
-                <Button x:Name="ForwardButton" Grid.Column="1" Content="Forward" Click="OnForwardClicked" Margin="8,0,0,0" ToolTipService.ToolTip="Forward (Alt+Right)" />
-                <Button x:Name="RefreshButton" Grid.Column="2" Content="Refresh" Click="OnRefreshClicked" Margin="8,0,0,0" ToolTipService.ToolTip="Refresh (F5)" />
-                <Button x:Name="NewFolderButton" Grid.Column="3" Content="New Folder" Click="OnNewFolderClicked" Margin="8,0,0,0" ToolTipService.ToolTip="New Folder (Ctrl+N)" />
-                <Button x:Name="RenameButton" Grid.Column="4" Content="Rename" Click="OnRenameClicked" Margin="8,0,0,0" ToolTipService.ToolTip="Rename (F2)" />
-                <Button x:Name="DeleteButton" Grid.Column="5" Content="Delete" Click="OnDeleteClicked" Margin="8,0,0,0" ToolTipService.ToolTip="Delete (Delete)" />
-                <ComboBox x:Name="ViewModeSelector" Grid.Column="6" Margin="12,0,0,0" SelectionChanged="OnViewModeSelectionChanged" ToolTipService.ToolTip="View mode (Finder-style)">
-                    <x:String>List</x:String>
-                    <x:String>Icon</x:String>
-                    <x:String>Column</x:String>
-                    <x:String>Gallery</x:String>
-                </ComboBox>
-                <ComboBox x:Name="SortSelector" Grid.Column="7" SelectionChanged="OnSortSelectionChanged" ToolTipService.ToolTip="Sort order">
-                    <x:String>Name (A-Z)</x:String>
-                    <x:String>Name (Z-A)</x:String>
-                    <x:String>Date Modified (Oldest)</x:String>
-                    <x:String>Date Modified (Newest)</x:String>
-                    <x:String>Size (Smallest)</x:String>
-                    <x:String>Size (Largest)</x:String>
-                </ComboBox>
-                <TextBox x:Name="PathBox" Grid.Column="8" Margin="12,0,12,0" PlaceholderText="Path" KeyDown="OnPathBoxKeyDown" />
-                <TextBox x:Name="SearchBox" Grid.Column="9" PlaceholderText="Search" KeyDown="OnSearchBoxKeyDown" ToolTipService.ToolTip="Search (Ctrl+F)" />
-            </Grid>
+                    <Button x:Name="BackButton" Grid.Column="0" Content="Back" Click="OnBackClicked" ToolTipService.ToolTip="Back (Alt+Left)" Style="{StaticResource FinderToolbarButtonStyle}" />
+                    <Button x:Name="ForwardButton" Grid.Column="1" Content="Forward" Click="OnForwardClicked" ToolTipService.ToolTip="Forward (Alt+Right)" Style="{StaticResource FinderToolbarButtonStyle}" />
+                    <Button x:Name="RefreshButton" Grid.Column="2" Content="Refresh" Click="OnRefreshClicked" ToolTipService.ToolTip="Refresh (F5)" Style="{StaticResource FinderToolbarButtonStyle}" />
+                    <Button x:Name="NewFolderButton" Grid.Column="3" Content="New Folder" Click="OnNewFolderClicked" ToolTipService.ToolTip="New Folder (Ctrl+N)" Style="{StaticResource FinderToolbarButtonStyle}" />
+                    <Button x:Name="RenameButton" Grid.Column="4" Content="Rename" Click="OnRenameClicked" ToolTipService.ToolTip="Rename (F2)" Style="{StaticResource FinderToolbarButtonStyle}" />
+                    <Button x:Name="DeleteButton" Grid.Column="5" Content="Delete" Click="OnDeleteClicked" ToolTipService.ToolTip="Delete (Delete)" Style="{StaticResource FinderToolbarButtonStyle}" />
+                    <ComboBox x:Name="ViewModeSelector" Grid.Column="6" SelectionChanged="OnViewModeSelectionChanged" ToolTipService.ToolTip="View mode (Finder-style)">
+                        <x:String>List</x:String>
+                        <x:String>Icon</x:String>
+                        <x:String>Column</x:String>
+                        <x:String>Gallery</x:String>
+                    </ComboBox>
+                    <ComboBox x:Name="SortSelector" Grid.Column="7" SelectionChanged="OnSortSelectionChanged" ToolTipService.ToolTip="Sort order">
+                        <x:String>Name (A-Z)</x:String>
+                        <x:String>Name (Z-A)</x:String>
+                        <x:String>Date Modified (Oldest)</x:String>
+                        <x:String>Date Modified (Newest)</x:String>
+                        <x:String>Size (Smallest)</x:String>
+                        <x:String>Size (Largest)</x:String>
+                    </ComboBox>
+                    <TextBox x:Name="PathBox" Grid.Column="8" Margin="8,0,8,0" PlaceholderText="Path" KeyDown="OnPathBoxKeyDown" />
+                    <TextBox x:Name="SearchBox" Grid.Column="9" PlaceholderText="Search in current folder" KeyDown="OnSearchBoxKeyDown" ToolTipService.ToolTip="Search (Ctrl+F)" />
+                </Grid>
+            </Border>
 
-            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Padding="12,0,12,4" ColumnSpacing="8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
-                    <StackPanel x:Name="TabStripPanel" Orientation="Horizontal" Spacing="6" />
-                </ScrollViewer>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                    <Button x:Name="NewTabButton" Content="+ Tab" Click="OnNewTabClicked" ToolTipService.ToolTip="New Tab (Ctrl+T)" />
-                    <Button x:Name="CloseTabButton" Content="Close Tab" Click="OnCloseTabClicked" ToolTipService.ToolTip="Close Tab (Ctrl+W)" />
-                </StackPanel>
-            </Grid>
+            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Margin="12,0,12,4" Padding="8,6" Background="{StaticResource FinderChromeBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="10">
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
+                        <StackPanel x:Name="TabStripPanel" Orientation="Horizontal" Spacing="6" />
+                    </ScrollViewer>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                        <Button x:Name="NewTabButton" Content="+ Tab" Click="OnNewTabClicked" ToolTipService.ToolTip="New Tab (Ctrl+T)" Style="{StaticResource FinderToolbarButtonStyle}" />
+                        <Button x:Name="CloseTabButton" Content="Close Tab" Click="OnCloseTabClicked" ToolTipService.ToolTip="Close Tab (Ctrl+W)" Style="{StaticResource FinderToolbarButtonStyle}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
 
-            <ScrollViewer Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
+            <ScrollViewer Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" Margin="12,0,12,0" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
                 <StackPanel x:Name="BreadcrumbPanel" Orientation="Horizontal" Spacing="4" Padding="12,4,12,8" />
             </ScrollViewer>
 
@@ -103,7 +151,7 @@
                 Width="6"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
-                Background="#22000000"
+                Background="{StaticResource FinderDividerBrush}"
                 PointerPressed="OnSidebarSplitterPointerPressed"
                 PointerMoved="OnSidebarSplitterPointerMoved"
                 PointerReleased="OnSidebarSplitterPointerReleased"
@@ -116,12 +164,12 @@
                 Width="6"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
-                Background="#22000000"
+                Background="{StaticResource FinderDividerBrush}"
                 PointerPressed="OnPreviewSplitterPointerPressed"
                 PointerMoved="OnPreviewSplitterPointerMoved"
                 PointerReleased="OnPreviewSplitterPointerReleased"
                 PointerCanceled="OnPreviewSplitterPointerCanceled" />
-            <Border Grid.Row="3" Grid.Column="4" Margin="8,0,12,0" Padding="12" BorderThickness="1" CornerRadius="8">
+            <Border Grid.Row="3" Grid.Column="4" Margin="8,0,12,0" Padding="12" Background="{StaticResource FinderPanelBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="10">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Preview" FontSize="16" FontWeight="SemiBold" />
                     <TextBlock Text="Name" FontWeight="SemiBold" />
@@ -143,7 +191,7 @@
                     </Border>
                 </StackPanel>
             </Border>
-            <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5" Padding="12,8">
+            <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="5" Margin="12,6,12,10" Padding="12,8" Background="{StaticResource FinderPanelBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="10">
                 <InfoBar
                     x:Name="StatusInfoBar"
                     IsOpen="True"
