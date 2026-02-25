@@ -6,6 +6,7 @@ namespace Nimbus.App.Views;
 public sealed partial class FileListView : UserControl
 {
     public event EventHandler<ShellItemModel>? ItemInvoked;
+    public event EventHandler? ItemSelectionChanged;
 
     public FileListView()
     {
@@ -18,5 +19,10 @@ public sealed partial class FileListView : UserControl
         {
             ItemInvoked?.Invoke(this, item);
         }
+    }
+
+    private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ItemSelectionChanged?.Invoke(this, EventArgs.Empty);
     }
 }

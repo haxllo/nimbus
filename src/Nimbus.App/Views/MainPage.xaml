@@ -11,7 +11,9 @@
     <Page.KeyboardAccelerators>
         <KeyboardAccelerator Key="Left" Modifiers="Menu" Invoked="OnBackAcceleratorInvoked" />
         <KeyboardAccelerator Key="Right" Modifiers="Menu" Invoked="OnForwardAcceleratorInvoked" />
+        <KeyboardAccelerator Key="F5" Invoked="OnRefreshAcceleratorInvoked" />
         <KeyboardAccelerator Key="Delete" Invoked="OnDeleteAcceleratorInvoked" />
+        <KeyboardAccelerator Key="F2" Invoked="OnRenameAcceleratorInvoked" />
         <KeyboardAccelerator Key="F" Modifiers="Control" Invoked="OnSearchFocusAcceleratorInvoked" />
     </Page.KeyboardAccelerators>
     <Page.Content>
@@ -32,15 +34,21 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="220" />
                 </Grid.ColumnDefinitions>
 
                 <Button x:Name="BackButton" Content="Back" Click="OnBackClicked" />
                 <Button x:Name="ForwardButton" Grid.Column="1" Content="Forward" Click="OnForwardClicked" Margin="8,0,0,0" />
-                <Button x:Name="DeleteButton" Grid.Column="2" Content="Delete" Click="OnDeleteClicked" Margin="8,0,0,0" />
-                <TextBox x:Name="PathBox" Grid.Column="3" Margin="12,0,12,0" PlaceholderText="Path" KeyDown="OnPathBoxKeyDown" />
-                <TextBox x:Name="SearchBox" Grid.Column="4" PlaceholderText="Search" KeyDown="OnSearchBoxKeyDown" />
+                <Button x:Name="RefreshButton" Grid.Column="2" Content="Refresh" Click="OnRefreshClicked" Margin="8,0,0,0" />
+                <Button x:Name="NewFolderButton" Grid.Column="3" Content="New Folder" Click="OnNewFolderClicked" Margin="8,0,0,0" />
+                <Button x:Name="RenameButton" Grid.Column="4" Content="Rename" Click="OnRenameClicked" Margin="8,0,0,0" />
+                <Button x:Name="DeleteButton" Grid.Column="5" Content="Delete" Click="OnDeleteClicked" Margin="8,0,0,0" />
+                <TextBox x:Name="PathBox" Grid.Column="6" Margin="12,0,12,0" PlaceholderText="Path" KeyDown="OnPathBoxKeyDown" />
+                <TextBox x:Name="SearchBox" Grid.Column="7" PlaceholderText="Search" KeyDown="OnSearchBoxKeyDown" />
             </Grid>
 
             <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">

@@ -28,6 +28,7 @@ public partial class MainPage : Page
 
         Sidebar.LocationSelected += OnSidebarLocationSelected;
         FileList.ItemInvoked += OnFileItemInvoked;
+        FileList.ItemSelectionChanged += OnFileItemSelectionChanged;
 
         _ = InitializeAsync();
     }
@@ -70,6 +71,11 @@ public partial class MainPage : Page
         }
     }
 
+    private void OnFileItemSelectionChanged(object? sender, EventArgs e)
+    {
+        UpdateNavButtons();
+    }
+
     private async void OnBackClicked(object sender, RoutedEventArgs e)
     {
         await NavigateBackAsync();
@@ -80,6 +86,21 @@ public partial class MainPage : Page
         await NavigateForwardAsync();
     }
 
+    private async void OnRefreshClicked(object sender, RoutedEventArgs e)
+    {
+        await RefreshCurrentFolderAsync();
+    }
+
+    private async void OnNewFolderClicked(object sender, RoutedEventArgs e)
+    {
+        await CreateNewFolderAsync();
+    }
+
+    private async void OnRenameClicked(object sender, RoutedEventArgs e)
+    {
+        await RenameSelectedItemAsync();
+    }
+
     private async void OnDeleteClicked(object sender, RoutedEventArgs e)
     {
         await DeleteSelectedItemAsync();
@@ -87,24 +108,51 @@ public partial class MainPage : Page
 
     private async void OnBackAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
         await NavigateBackAsync();
         args.Handled = true;
     }
 
     private async void OnForwardAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
         await NavigateForwardAsync();
+        args.Handled = true;
+    }
+
+    private async void OnRefreshAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        await RefreshCurrentFolderAsync();
         args.Handled = true;
     }
 
     private async void OnDeleteAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
-        if (FocusManager.GetFocusedElement(XamlRoot) is TextBox)
+        if (IsTextInputFocused())
         {
             return;
         }
 
         await DeleteSelectedItemAsync();
+        args.Handled = true;
+    }
+
+    private async void OnRenameAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
+        await RenameSelectedItemAsync();
         args.Handled = true;
     }
 
@@ -127,6 +175,32 @@ public partial class MainPage : Page
         var success = await _viewModel.GoForwardAsync();
         UpdateNavigationUi();
         SetStatus(success ? "Navigated forward." : "No forward location.");
+    }
+
+    private async Task RefreshCurrentFolderAsync(bool showStatus = true)
+    {
+        var currentPath = _viewModel.Navigation.CurrentPath;
+        if (string.IsNullOrWhiteSpace(currentPath))
+        {
+            if (showStatus)
+            {
+                SetStatus("Open a folder before refreshing.");
+            }
+
+            return;
+        }
+
+        var success = await _viewModel.NavigateToAsync(currentPath);
+        UpdateNavigationUi();
+
+        if (!showStatus)
+        {
+            return;
+        }
+
+        SetStatus(success
+            ? $"Refreshed {currentPath}."
+            : $"Unable to refresh folder: {currentPath}", isError: !success);
     }
 
     private async void OnPathBoxKeyDown(object sender, KeyRoutedEventArgs e)
@@ -194,6 +268,13 @@ public partial class MainPage : Page
             return;
         }
 
+        var confirmed = await ConfirmDeleteAsync(selectedItem);
+        if (!confirmed)
+        {
+            SetStatus("Delete cancelled.");
+            return;
+        }
+
         var result = await _fileOperationsService.DeleteAsync(selectedItem.Path);
         if (!result.IsSuccess)
         {
@@ -201,12 +282,68 @@ public partial class MainPage : Page
             return;
         }
 
-        if (_viewModel.Navigation.CurrentPath is { } currentPath)
+        await RefreshCurrentFolderAsync(showStatus: false);
+        SetStatus(result.Message);
+    }
+
+    private async Task CreateNewFolderAsync()
+    {
+        var currentPath = _viewModel.Navigation.CurrentPath;
+        if (string.IsNullOrWhiteSpace(currentPath))
         {
-            await _viewModel.FileList.LoadAsync(currentPath);
+            SetStatus("Open a folder before creating a new folder.");
+            return;
         }
 
-        UpdateNavigationUi();
+        if (!Directory.Exists(currentPath))
+        {
+            SetStatus($"Current path is unavailable: {currentPath}", isError: true);
+            return;
+        }
+
+        var folderName = FindAvailableFolderName(currentPath);
+        var result = await _fileOperationsService.CreateDirectoryAsync(currentPath, folderName);
+        if (!result.IsSuccess)
+        {
+            SetStatus(result.Message, isError: true);
+            return;
+        }
+
+        await RefreshCurrentFolderAsync(showStatus: false);
+        SelectItemByPath(Path.Combine(currentPath, folderName));
+        SetStatus(result.Message);
+    }
+
+    private async Task RenameSelectedItemAsync()
+    {
+        var selectedItem = _viewModel.FileList.SelectedItem;
+        if (selectedItem is null)
+        {
+            SetStatus("Select an item to rename.");
+            return;
+        }
+
+        var currentName = string.IsNullOrWhiteSpace(selectedItem.DisplayName)
+            ? Path.GetFileName(selectedItem.Path)
+            : selectedItem.DisplayName;
+
+        var newName = await PromptForNewNameAsync(currentName);
+        if (newName is null)
+        {
+            SetStatus("Rename cancelled.");
+            return;
+        }
+
+        var result = await _fileOperationsService.RenameAsync(selectedItem.Path, newName);
+        if (!result.IsSuccess)
+        {
+            SetStatus(result.Message, isError: true);
+            return;
+        }
+
+        await RefreshCurrentFolderAsync(showStatus: false);
+        var parentPath = Path.GetDirectoryName(selectedItem.Path) ?? string.Empty;
+        SelectItemByPath(Path.Combine(parentPath, newName));
         SetStatus(result.Message);
     }
 
@@ -238,6 +375,10 @@ public partial class MainPage : Page
     {
         BackButton.IsEnabled = _viewModel.Navigation.CanGoBack;
         ForwardButton.IsEnabled = _viewModel.Navigation.CanGoForward;
+        RefreshButton.IsEnabled = !string.IsNullOrWhiteSpace(_viewModel.Navigation.CurrentPath);
+        NewFolderButton.IsEnabled = !string.IsNullOrWhiteSpace(_viewModel.Navigation.CurrentPath);
+        RenameButton.IsEnabled = _viewModel.FileList.SelectedItem is not null;
+        DeleteButton.IsEnabled = _viewModel.FileList.SelectedItem is not null;
     }
 
     private void UpdateBreadcrumbs()
@@ -283,5 +424,85 @@ public partial class MainPage : Page
     private void SetStatus(string message, bool isError = false)
     {
         StatusTextBlock.Text = isError ? $"Error: {message}" : message;
+    }
+
+    private bool IsTextInputFocused() =>
+        FocusManager.GetFocusedElement(XamlRoot) is TextBox;
+
+    private static string FindAvailableFolderName(string parentPath)
+    {
+        const string baseName = "New Folder";
+        var candidate = baseName;
+        var suffix = 2;
+
+        while (Directory.Exists(Path.Combine(parentPath, candidate)) ||
+               File.Exists(Path.Combine(parentPath, candidate)))
+        {
+            candidate = $"{baseName} ({suffix})";
+            suffix++;
+        }
+
+        return candidate;
+    }
+
+    private async Task<bool> ConfirmDeleteAsync(ShellItemModel selectedItem)
+    {
+        var name = string.IsNullOrWhiteSpace(selectedItem.DisplayName)
+            ? selectedItem.Path
+            : selectedItem.DisplayName;
+
+        var dialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = "Delete Item",
+            Content = $"Delete \"{name}\"? This action cannot be undone.",
+            PrimaryButtonText = "Delete",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close
+        };
+
+        var result = await dialog.ShowAsync();
+        return result == ContentDialogResult.Primary;
+    }
+
+    private async Task<string?> PromptForNewNameAsync(string currentName)
+    {
+        var textBox = new TextBox
+        {
+            Text = currentName
+        };
+        textBox.SelectAll();
+
+        var dialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = "Rename Item",
+            Content = textBox,
+            PrimaryButtonText = "Rename",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result != ContentDialogResult.Primary)
+        {
+            return null;
+        }
+
+        var newName = textBox.Text.Trim();
+        if (string.IsNullOrWhiteSpace(newName))
+        {
+            SetStatus("Name cannot be empty.", isError: true);
+            return null;
+        }
+
+        return newName;
+    }
+
+    private void SelectItemByPath(string path)
+    {
+        var selected = _viewModel.FileList.Items.FirstOrDefault(item =>
+            string.Equals(item.Path, path, StringComparison.OrdinalIgnoreCase));
+        _viewModel.FileList.SelectedItem = selected;
     }
 }

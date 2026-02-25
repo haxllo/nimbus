@@ -2,6 +2,52 @@ namespace Nimbus.Core.Services;
 
 public sealed class FileOperationsService : IFileOperationsService
 {
+    public Task<FileOperationResult> CreateDirectoryAsync(string parentPath, string folderName, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (string.IsNullOrWhiteSpace(parentPath) || string.IsNullOrWhiteSpace(folderName))
+            {
+                return Task.FromResult(FileOperationResult.Failure(
+                    FileOperationErrorCode.InvalidInput,
+                    "Parent path and folder name are required."));
+            }
+
+            var normalizedParentPath = parentPath.Trim();
+            if (!Directory.Exists(normalizedParentPath))
+            {
+                return Task.FromResult(FileOperationResult.Failure(
+                    FileOperationErrorCode.NotFound,
+                    $"Parent folder was not found: {normalizedParentPath}"));
+            }
+
+            var normalizedFolderName = folderName.Trim();
+            if (ContainsDirectorySeparators(normalizedFolderName))
+            {
+                return Task.FromResult(FileOperationResult.Failure(
+                    FileOperationErrorCode.InvalidInput,
+                    "Folder name must not contain directory separators."));
+            }
+
+            var destinationPath = Path.Combine(normalizedParentPath, normalizedFolderName);
+            if (PathExists(destinationPath))
+            {
+                return Task.FromResult(FileOperationResult.Failure(
+                    FileOperationErrorCode.Conflict,
+                    $"Cannot create folder because it already exists: {destinationPath}"));
+            }
+
+            Directory.CreateDirectory(destinationPath);
+            return Task.FromResult(FileOperationResult.Success($"Created folder {normalizedFolderName}"));
+        }
+        catch (Exception ex)
+        {
+            return Task.FromResult(MapException("create folder", ex));
+        }
+    }
+
     public Task<FileOperationResult> CopyAsync(string sourcePath, string destinationPath, CancellationToken cancellationToken = default)
     {
         try
@@ -91,8 +137,8 @@ public sealed class FileOperationsService : IFileOperationsService
                     "Source path and new name are required."));
             }
 
-            if (newName.IndexOf(Path.DirectorySeparatorChar) >= 0 ||
-                newName.IndexOf(Path.AltDirectorySeparatorChar) >= 0)
+            var normalizedNewName = newName.Trim();
+            if (ContainsDirectorySeparators(normalizedNewName))
             {
                 return Task.FromResult(FileOperationResult.Failure(
                     FileOperationErrorCode.InvalidInput,
@@ -108,7 +154,7 @@ public sealed class FileOperationsService : IFileOperationsService
             }
 
             var parent = Path.GetDirectoryName(normalizedSource) ?? string.Empty;
-            var destinationPath = Path.Combine(parent, newName.Trim());
+            var destinationPath = Path.Combine(parent, normalizedNewName);
 
             if (PathExists(destinationPath))
             {
@@ -126,7 +172,7 @@ public sealed class FileOperationsService : IFileOperationsService
                 File.Move(normalizedSource, destinationPath, overwrite: false);
             }
 
-            return Task.FromResult(FileOperationResult.Success($"Renamed to {newName.Trim()}"));
+            return Task.FromResult(FileOperationResult.Success($"Renamed to {normalizedNewName}"));
         }
         catch (Exception ex)
         {
@@ -223,6 +269,10 @@ public sealed class FileOperationsService : IFileOperationsService
 
     private static bool PathExists(string path) =>
         Directory.Exists(path) || File.Exists(path);
+
+    private static bool ContainsDirectorySeparators(string pathSegment) =>
+        pathSegment.IndexOf(Path.DirectorySeparatorChar) >= 0 ||
+        pathSegment.IndexOf(Path.AltDirectorySeparatorChar) >= 0;
 
     private static void CopyDirectory(string sourceDir, string destinationDir)
     {

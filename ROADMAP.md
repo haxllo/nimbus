@@ -40,6 +40,7 @@ Status:
 - [x] Added file operation error-result model (`FileOperationResult`) with explicit error codes.
 - [x] Added UI status bar feedback for navigation, search, and file operation failures.
 - [x] Added file operation failure tests for missing source, destination conflicts, and unauthorized access mapping.
+- [x] Added rename/delete/cancellation edge-case tests in `FileOperationsServiceTests`.
 
 Exit Criteria:
 - No unhandled exceptions when navigating missing or inaccessible folders.
@@ -54,9 +55,9 @@ Scope:
 
 Status:
 - [x] Breadcrumb UI with clickable segments.
-- [ ] Toolbar actions for New Folder, Rename, Delete, Refresh.
+- [x] Toolbar actions for New Folder, Rename, Delete, Refresh.
 - [x] Keyboard shortcuts (`Alt+Left`, `Alt+Right`, `Delete`, `Ctrl+F`).
-- [ ] Rename shortcut (`F2`) after rename action is added.
+- [x] Rename shortcut (`F2`).
 
 Exit Criteria:
 - Full keyboard navigation for core actions.
@@ -78,7 +79,7 @@ Exit Criteria:
 - File operations succeed in temp directories and provide actionable errors on failures.
 
 ## Immediate Next Tasks
-1. Add New Folder and Rename toolbar actions.
-2. Add `F2` rename shortcut once rename action exists.
-3. Add targeted tests for rename/delete edge cases and cancellation behavior.
-4. Add operation confirmation/feedback UX polish (success toast and optional delete confirmation).
+1. Add conflict-resolution UX for rename/new-folder when a target already exists.
+2. Expand keyboard coverage (`Ctrl+N` for New Folder, `F5` refresh in docs/help text).
+3. Add integration-style tests around `MainPageViewModel` for create/rename/delete command flows.
+4. Polish status feedback into richer toast/infobar states (success/warning/error).

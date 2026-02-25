@@ -9,6 +9,7 @@
             x:Name="FileList"
             ItemsSource="{Binding Items}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+            SelectionChanged="OnSelectionChanged"
             DoubleTapped="OnDoubleTapped">
             <ListView.ItemTemplate>
                 <DataTemplate>
