@@ -9,4 +9,6 @@ public sealed record class SavedSearchModel
     public string RootPath { get; init; } = string.Empty;
 
     public string Query { get; init; } = string.Empty;
+
+    public string IconGlyph { get; init; } = "\uE721";
 }

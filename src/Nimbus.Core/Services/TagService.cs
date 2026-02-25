@@ -30,10 +30,10 @@ public sealed class TagService : ITagService
     {
         var tags = new List<FileTagModel>();
 
-        AddTag(tags, "work", "Work", GetFolderPath(Environment.SpecialFolder.MyDocuments), "*.docx");
-        AddTag(tags, "media", "Media", GetFolderPath(Environment.SpecialFolder.MyPictures), "*.png");
-        AddTag(tags, "archive", "Archive", GetDownloadsPath(), "*.zip");
-        AddTag(tags, "source", "Source", GetFolderPath(Environment.SpecialFolder.UserProfile), "*.cs");
+        AddTag(tags, "work", "Work", GetFolderPath(Environment.SpecialFolder.MyDocuments), "*.docx", "\uE8A5");
+        AddTag(tags, "media", "Media", GetFolderPath(Environment.SpecialFolder.MyPictures), "*.png", "\uEB9F");
+        AddTag(tags, "archive", "Archive", GetDownloadsPath(), "*.zip", "\uE7B8");
+        AddTag(tags, "source", "Source", GetFolderPath(Environment.SpecialFolder.UserProfile), "*.cs", "\uE943");
 
         return tags;
     }
@@ -43,7 +43,8 @@ public sealed class TagService : ITagService
         string id,
         string displayName,
         string? rootPath,
-        string query)
+        string query,
+        string iconGlyph)
     {
         if (string.IsNullOrWhiteSpace(rootPath) || !Directory.Exists(rootPath))
         {
@@ -55,7 +56,8 @@ public sealed class TagService : ITagService
             Id = id,
             DisplayName = displayName,
             RootPath = rootPath,
-            Query = query
+            Query = query,
+            IconGlyph = iconGlyph
         });
     }
 

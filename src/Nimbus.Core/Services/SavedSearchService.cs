@@ -155,7 +155,8 @@ public sealed class SavedSearchService : ISavedSearchService
                 Id = "default-documents-text",
                 DisplayName = "Documents: Text Files",
                 RootPath = documentsPath,
-                Query = "*.txt"
+                Query = "*.txt",
+                IconGlyph = "\uE721"
             });
         }
 
@@ -167,7 +168,8 @@ public sealed class SavedSearchService : ISavedSearchService
                 Id = "default-pictures-images",
                 DisplayName = "Pictures: Images",
                 RootPath = picturesPath,
-                Query = "*.png"
+                Query = "*.png",
+                IconGlyph = "\uE721"
             });
         }
 
