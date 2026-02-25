@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Nimbus.Core.Models;
 using Nimbus.Core.Services;
 using Nimbus.Core.ViewModels;
@@ -604,17 +605,6 @@ public partial class MainPage : Page
             details.Add($"Status: {preview.ErrorMessage}");
         }
 
-        var previewText = preview.TextPreview;
-        if (preview.IsImage && !string.IsNullOrWhiteSpace(preview.ImagePath))
-        {
-            previewText = $"Image file: {preview.ImagePath}";
-        }
-
-        if (string.IsNullOrWhiteSpace(previewText))
-        {
-            previewText = "No text preview available for this item.";
-        }
-
         var content = new StackPanel
         {
             Spacing = 10
@@ -629,16 +619,57 @@ public partial class MainPage : Page
             Text = "Preview",
             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
         });
-        content.Children.Add(new ScrollViewer
+
+        if (preview.IsImage && !string.IsNullOrWhiteSpace(preview.ImagePath))
         {
-            Height = 320,
-            Content = new TextBlock
+            UIElement imagePreviewContent;
+            try
             {
-                Text = previewText,
-                TextWrapping = TextWrapping.WrapWholeWords,
-                IsTextSelectionEnabled = true
+                imagePreviewContent = new ScrollViewer
+                {
+                    Height = 340,
+                    HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    Content = new Image
+                    {
+                        Stretch = Stretch.Uniform,
+                        MaxHeight = 520,
+                        Source = new BitmapImage(new Uri(preview.ImagePath, UriKind.Absolute))
+                    }
+                };
             }
-        });
+            catch (Exception ex)
+            {
+                imagePreviewContent = new TextBlock
+                {
+                    Text = $"Unable to render image preview: {ex.Message}",
+                    TextWrapping = TextWrapping.WrapWholeWords
+                };
+            }
+
+            content.Children.Add(imagePreviewContent);
+        }
+        else
+        {
+            var previewText = preview.TextPreview;
+            if (string.IsNullOrWhiteSpace(previewText))
+            {
+                previewText = preview.IsFolder
+                    ? "Folder preview is currently metadata-only."
+                    : "No text preview available for this item.";
+            }
+
+            content.Children.Add(new ScrollViewer
+            {
+                Height = 340,
+                Content = new TextBlock
+                {
+                    Text = previewText,
+                    TextWrapping = TextWrapping.WrapWholeWords,
+                    IsTextSelectionEnabled = true
+                }
+            });
+        }
 
         var dialog = new ContentDialog
         {
@@ -1267,7 +1298,7 @@ public partial class MainPage : Page
         {
             XamlRoot = XamlRoot,
             Title = "Delete Item",
-            Content = $"Delete \"{name}\"? This action cannot be undone.",
+            Content = $"Move \"{name}\" to Recycle Bin? If Recycle Bin is unavailable, Nimbus may permanently delete it.",
             PrimaryButtonText = "Delete",
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Close

@@ -89,60 +89,84 @@
             </Grid.ColumnDefinitions>
 
             <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="5" Margin="12,10,12,6" Padding="10,8" Background="{StaticResource FinderChromeBrush}" BorderBrush="{StaticResource FinderDividerBrush}" BorderThickness="1" CornerRadius="12">
-                <Grid ColumnSpacing="8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="130" />
-                        <ColumnDefinition Width="170" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="220" />
-                        <ColumnDefinition Width="230" />
-                    </Grid.ColumnDefinitions>
+                <Grid RowSpacing="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="2*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                        <Ellipse Width="11" Height="11" Fill="#FF5F57" />
-                        <Ellipse Width="11" Height="11" Fill="#FEBC2E" />
-                        <Ellipse Width="11" Height="11" Fill="#28C840" />
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,2,0">
-                        <TextBlock Text="Nimbus" FontWeight="SemiBold" />
-                        <TextBlock Text="  Finder View" Foreground="{StaticResource FinderSubtleTextBrush}" />
-                    </StackPanel>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                            <Ellipse Width="11" Height="11" Fill="#FF5F57" />
+                            <Ellipse Width="11" Height="11" Fill="#FEBC2E" />
+                            <Ellipse Width="11" Height="11" Fill="#28C840" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,2,0">
+                            <TextBlock Text="Nimbus" FontWeight="SemiBold" />
+                            <TextBlock Text="  Finder View" Foreground="{StaticResource FinderSubtleTextBrush}" />
+                        </StackPanel>
 
-                    <Button x:Name="BackButton" Grid.Column="2" Click="OnBackClicked" ToolTipService.ToolTip="Back (Alt+Left)" Style="{StaticResource FinderNavButtonStyle}">
-                        <FontIcon Glyph="&#xE72B;" FontFamily="Segoe MDL2 Assets" />
-                    </Button>
-                    <Button x:Name="ForwardButton" Grid.Column="3" Click="OnForwardClicked" ToolTipService.ToolTip="Forward (Alt+Right)" Style="{StaticResource FinderNavButtonStyle}">
-                        <FontIcon Glyph="&#xE72A;" FontFamily="Segoe MDL2 Assets" />
-                    </Button>
-                    <Button x:Name="RefreshButton" Grid.Column="4" Click="OnRefreshClicked" ToolTipService.ToolTip="Refresh (F5)" Style="{StaticResource FinderNavButtonStyle}">
-                        <FontIcon Glyph="&#xE72C;" FontFamily="Segoe MDL2 Assets" />
-                    </Button>
-                    <Button x:Name="NewFolderButton" Grid.Column="5" Content="New Folder" Click="OnNewFolderClicked" ToolTipService.ToolTip="New Folder (Ctrl+N)" Style="{StaticResource FinderToolbarButtonStyle}" />
-                    <Button x:Name="RenameButton" Grid.Column="6" Content="Rename" Click="OnRenameClicked" ToolTipService.ToolTip="Rename (F2)" Style="{StaticResource FinderToolbarButtonStyle}" />
-                    <Button x:Name="DeleteButton" Grid.Column="7" Content="Delete" Click="OnDeleteClicked" ToolTipService.ToolTip="Delete (Delete)" Style="{StaticResource FinderToolbarButtonStyle}" />
-                    <ComboBox x:Name="ViewModeSelector" Grid.Column="8" SelectionChanged="OnViewModeSelectionChanged" ToolTipService.ToolTip="View mode (Finder-style)">
-                        <x:String>List</x:String>
-                        <x:String>Icon</x:String>
-                        <x:String>Column</x:String>
-                        <x:String>Gallery</x:String>
-                    </ComboBox>
-                    <ComboBox x:Name="SortSelector" Grid.Column="9" SelectionChanged="OnSortSelectionChanged" ToolTipService.ToolTip="Sort order">
-                        <x:String>Name (A-Z)</x:String>
-                        <x:String>Name (Z-A)</x:String>
-                        <x:String>Date Modified (Oldest)</x:String>
-                        <x:String>Date Modified (Newest)</x:String>
-                        <x:String>Size (Smallest)</x:String>
-                        <x:String>Size (Largest)</x:String>
-                    </ComboBox>
-                    <TextBox x:Name="PathBox" Grid.Column="10" Margin="8,0,8,0" PlaceholderText="Path" KeyDown="OnPathBoxKeyDown" />
-                    <TextBox x:Name="SearchBox" Grid.Column="11" PlaceholderText="Search in current folder" KeyDown="OnSearchBoxKeyDown" ToolTipService.ToolTip="Search (Ctrl+F)" />
+                        <Button x:Name="BackButton" Grid.Column="2" Click="OnBackClicked" ToolTipService.ToolTip="Back (Alt+Left)" Style="{StaticResource FinderNavButtonStyle}">
+                            <FontIcon Glyph="&#xE72B;" FontFamily="Segoe MDL2 Assets" />
+                        </Button>
+                        <Button x:Name="ForwardButton" Grid.Column="3" Click="OnForwardClicked" ToolTipService.ToolTip="Forward (Alt+Right)" Style="{StaticResource FinderNavButtonStyle}">
+                            <FontIcon Glyph="&#xE72A;" FontFamily="Segoe MDL2 Assets" />
+                        </Button>
+                        <Button x:Name="RefreshButton" Grid.Column="4" Click="OnRefreshClicked" ToolTipService.ToolTip="Refresh (F5)" Style="{StaticResource FinderNavButtonStyle}">
+                            <FontIcon Glyph="&#xE72C;" FontFamily="Segoe MDL2 Assets" />
+                        </Button>
+
+                        <TextBox
+                            x:Name="PathBox"
+                            Grid.Column="5"
+                            Margin="8,0,8,0"
+                            MinWidth="240"
+                            PlaceholderText="Path"
+                            KeyDown="OnPathBoxKeyDown" />
+                        <TextBox
+                            x:Name="SearchBox"
+                            Grid.Column="6"
+                            MinWidth="180"
+                            PlaceholderText="Search in current folder"
+                            KeyDown="OnSearchBoxKeyDown"
+                            ToolTipService.ToolTip="Search (Ctrl+F)" />
+                    </Grid>
+
+                    <ScrollViewer
+                        Grid.Row="1"
+                        HorizontalScrollBarVisibility="Auto"
+                        HorizontalScrollMode="Enabled"
+                        VerticalScrollBarVisibility="Disabled"
+                        VerticalScrollMode="Disabled">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button x:Name="NewFolderButton" Content="New Folder" Click="OnNewFolderClicked" ToolTipService.ToolTip="New Folder (Ctrl+N)" Style="{StaticResource FinderToolbarButtonStyle}" />
+                            <Button x:Name="RenameButton" Content="Rename" Click="OnRenameClicked" ToolTipService.ToolTip="Rename (F2)" Style="{StaticResource FinderToolbarButtonStyle}" />
+                            <Button x:Name="DeleteButton" Content="Delete" Click="OnDeleteClicked" ToolTipService.ToolTip="Delete (Delete)" Style="{StaticResource FinderToolbarButtonStyle}" />
+                            <ComboBox x:Name="ViewModeSelector" Width="160" SelectionChanged="OnViewModeSelectionChanged" ToolTipService.ToolTip="View mode (Finder-style)">
+                                <x:String>List</x:String>
+                                <x:String>Icon</x:String>
+                                <x:String>Column</x:String>
+                                <x:String>Gallery</x:String>
+                            </ComboBox>
+                            <ComboBox x:Name="SortSelector" Width="210" SelectionChanged="OnSortSelectionChanged" ToolTipService.ToolTip="Sort order">
+                                <x:String>Name (A-Z)</x:String>
+                                <x:String>Name (Z-A)</x:String>
+                                <x:String>Date Modified (Oldest)</x:String>
+                                <x:String>Date Modified (Newest)</x:String>
+                                <x:String>Size (Smallest)</x:String>
+                                <x:String>Size (Largest)</x:String>
+                            </ComboBox>
+                        </StackPanel>
+                    </ScrollViewer>
                 </Grid>
             </Border>
 

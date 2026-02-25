@@ -115,6 +115,7 @@ public sealed class FileListViewModel : INotifyPropertyChanged
     public async Task LoadAsync(string path, CancellationToken cancellationToken = default)
     {
         _currentPath = path;
+        OnPropertyChanged(nameof(CurrentPath));
         CurrentViewMode = _viewPreferenceService.GetViewMode(path);
         SelectedItem = null;
         CurrentPreview = null;
@@ -126,6 +127,21 @@ public sealed class FileListViewModel : INotifyPropertyChanged
         {
             Items.Add(item);
         }
+    }
+
+    public string? CurrentPath => _currentPath;
+
+    public async Task<IReadOnlyList<ShellItemModel>> LoadColumnItemsAsync(
+        string path,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return Array.Empty<ShellItemModel>();
+        }
+
+        var items = await _shellItemService.EnumerateAsync(path, cancellationToken);
+        return ApplySort(items).ToArray();
     }
 
     public void SetSort(FileSortField sortField, bool descending)

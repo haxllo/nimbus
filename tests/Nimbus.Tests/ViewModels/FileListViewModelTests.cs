@@ -105,6 +105,33 @@ public class FileListViewModelTests
     }
 
     [Fact]
+    public async Task LoadColumnItemsAsync_Returns_Folder_And_File_Items()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"nimbus-filelist-vm-column-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempRoot);
+        var folderPath = Path.Combine(tempRoot, "FolderA");
+        Directory.CreateDirectory(folderPath);
+        var filePath = Path.Combine(tempRoot, "file.txt");
+        await File.WriteAllTextAsync(filePath, "x");
+
+        try
+        {
+            var viewModel = CreateViewModel();
+            var items = await viewModel.LoadColumnItemsAsync(tempRoot);
+
+            Assert.Contains(items, item => item.IsFolder && string.Equals(item.Path, folderPath, StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(items, item => !item.IsFolder && string.Equals(item.Path, filePath, StringComparison.OrdinalIgnoreCase));
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
+
+    [Fact]
     public async Task SetSort_By_Size_Descending_Reorders_Files()
     {
         var tempRoot = Path.Combine(Path.GetTempPath(), $"nimbus-filelist-vm-sort-size-{Guid.NewGuid():N}");
