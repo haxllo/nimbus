@@ -22,7 +22,7 @@
 - Gaps before V1 quality:
   - Error-resilient navigation and search behavior was incomplete.
   - Tests were minimal and did not cover key failure/edge paths.
-  - UX milestones (breadcrumb actions, file operation UI flow, shortcuts) are incomplete.
+  - Visual parity with Finder-style hierarchy and view behavior is still low.
 
 ## Milestones
 
@@ -86,6 +86,27 @@ Status:
 Exit Criteria:
 - V1 acceptance criteria met in manual verification + automated tests.
 
+### M4: Finder Parity V2 (Next)
+Scope:
+- Finder-like application shell hierarchy (grouped sidebar, central browser, preview pane host).
+- View mode system (`Icon`, `List`, `Column`, `Gallery`) with per-path preference memory.
+- Preview pane + quick look (`Space`) and quick actions.
+- Tabbed navigation (`Ctrl+T`, `Ctrl+W`, `Ctrl+Tab`).
+- Sidebar `Tags` and saved-search collections (smart folders).
+
+Status:
+- [x] Plan created: `docs/plans/2026-02-25-finder-parity-next-feature-set.md`.
+- [ ] Task 1: Finder-like shell layout.
+- [ ] Task 2: View modes.
+- [ ] Task 3: Preview pane + quick look.
+- [ ] Task 4: Tabbed navigation.
+- [ ] Task 5: Tags + smart collections.
+- [ ] Task 6: Finder parity regression and acceptance pass.
+
+Exit Criteria:
+- App interaction flow feels Finder-inspired in layout, browsing, preview, and keyboard usage.
+- All new parity flows covered by tests and manual checklist.
+
 ## V1 Acceptance Criteria
 - Navigate common roots (`C:\`, user profile, Documents, Downloads, Pictures) without app crash.
 - Back/forward history always updates the list view to the active location.
@@ -93,7 +114,7 @@ Exit Criteria:
 - File operations succeed in temp directories and provide actionable errors on failures.
 
 ## Immediate Next Tasks
-1. [x] Add integration-style tests around `MainPageViewModel` for create/rename/delete command flows.
-2. [x] Add help text/tooltips listing keyboard shortcuts (`Ctrl+N`, `F5`, `F2`, `Ctrl+F`, `Alt+Left`, `Alt+Right`).
-3. [x] Package/branding polish for V1 (`Package.appxmanifest`, final icons/app name).
-4. [ ] Run full regression on large folders and permission boundaries (`docs/regression-checklist-v1.md`; fixture scripts and automated large-folder coverage added).
+1. [ ] Complete M3 regression pass (`docs/regression-checklist-v1.md`).
+2. [ ] Execute M4 Task 1: Finder-like shell layout (`docs/plans/2026-02-25-finder-parity-next-feature-set.md`).
+3. [ ] Execute M4 Task 2: View modes (`Icon/List/Column/Gallery`).
+4. [ ] Execute M4 Task 3: Preview pane + quick look.
