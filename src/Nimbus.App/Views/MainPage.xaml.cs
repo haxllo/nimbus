@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media.Imaging;
 using Nimbus.Core.Models;
 using Nimbus.Core.Services;
 using Nimbus.Core.ViewModels;
@@ -17,7 +16,6 @@ public partial class MainPage : Page
     private readonly MainPageViewModel _viewModel;
     private readonly ISearchService _searchService;
     private CancellationTokenSource? _activeSearchCancellation;
-    private CancellationTokenSource? _activePreviewCancellation;
 
     public MainPage()
     {
@@ -45,7 +43,6 @@ public partial class MainPage : Page
     private async void OnSidebarLocationSelected(object? sender, SidebarLocation e)
     {
         CancelActiveSearch();
-        CancelActivePreviewLoad();
         var success = await _viewModel.NavigateToAsync(e.Path);
         UpdateNavigationUi();
 
@@ -63,7 +60,6 @@ public partial class MainPage : Page
         if (e.IsFolder)
         {
             CancelActiveSearch();
-            CancelActivePreviewLoad();
             var success = await _viewModel.NavigateToAsync(e.Path);
             UpdateNavigationUi();
 
@@ -77,10 +73,9 @@ public partial class MainPage : Page
         }
     }
 
-    private async void OnFileItemSelectionChanged(object? sender, EventArgs e)
+    private void OnFileItemSelectionChanged(object? sender, EventArgs e)
     {
         UpdateNavButtons();
-        await RefreshPreviewAsync();
     }
 
     private async void OnBackClicked(object sender, RoutedEventArgs e)
@@ -181,17 +176,6 @@ public partial class MainPage : Page
         args.Handled = true;
     }
 
-    private async void OnQuickLookAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
-    {
-        if (IsTextInputFocused())
-        {
-            return;
-        }
-
-        await ShowQuickLookAsync();
-        args.Handled = true;
-    }
-
     private void OnViewModeSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (DataContext is not MainPageViewModel viewModel)
@@ -223,7 +207,6 @@ public partial class MainPage : Page
     private async Task NavigateBackAsync()
     {
         CancelActiveSearch();
-        CancelActivePreviewLoad();
         var success = await _viewModel.GoBackAsync();
         UpdateNavigationUi();
         SetStatus(
@@ -234,7 +217,6 @@ public partial class MainPage : Page
     private async Task NavigateForwardAsync()
     {
         CancelActiveSearch();
-        CancelActivePreviewLoad();
         var success = await _viewModel.GoForwardAsync();
         UpdateNavigationUi();
         SetStatus(
@@ -245,7 +227,6 @@ public partial class MainPage : Page
     private async Task RefreshCurrentFolderAsync(bool showStatus = true)
     {
         CancelActiveSearch();
-        CancelActivePreviewLoad();
         var currentPath = _viewModel.Navigation.CurrentPath;
         if (string.IsNullOrWhiteSpace(currentPath))
         {
@@ -275,7 +256,6 @@ public partial class MainPage : Page
         if (e.Key == Windows.System.VirtualKey.Enter && !string.IsNullOrWhiteSpace(PathBox.Text))
         {
             CancelActiveSearch();
-            CancelActivePreviewLoad();
             var success = await _viewModel.NavigateToAsync(PathBox.Text);
             UpdateNavigationUi();
 
@@ -295,9 +275,6 @@ public partial class MainPage : Page
         {
             return;
         }
-
-        CancelActivePreviewLoad();
-        _viewModel.FileList.ClearPreview();
 
         var root = _viewModel.Navigation.CurrentPath;
         if (string.IsNullOrWhiteSpace(root) || string.IsNullOrWhiteSpace(SearchBox.Text))
@@ -325,7 +302,6 @@ public partial class MainPage : Page
             }
 
             _viewModel.FileList.Items.Clear();
-            _viewModel.FileList.SelectedItem = null;
             foreach (var result in results)
             {
                 _viewModel.FileList.Items.Add(new ShellItemModel(result)
@@ -359,133 +335,6 @@ public partial class MainPage : Page
         {
             CompleteSearch(searchCancellation);
         }
-    }
-
-    private async Task RefreshPreviewAsync()
-    {
-        var previewCancellation = StartPreviewLoad();
-
-        try
-        {
-            await _viewModel.FileList.LoadPreviewForSelectionAsync(previewCancellation.Token);
-        }
-        catch (OperationCanceledException)
-        {
-            // Selection changed again; a newer preview request will update the pane.
-        }
-        finally
-        {
-            CompletePreviewLoad(previewCancellation);
-        }
-    }
-
-    private async Task ShowQuickLookAsync()
-    {
-        var selectedItem = _viewModel.FileList.SelectedItem;
-        if (selectedItem is null)
-        {
-            SetStatus("Select an item for Quick Look.", InfoBarSeverity.Warning);
-            return;
-        }
-
-        var preview = _viewModel.FileList.CurrentPreview;
-        if (preview is null ||
-            !string.Equals(preview.Path, selectedItem.Path, StringComparison.OrdinalIgnoreCase))
-        {
-            await RefreshPreviewAsync();
-            preview = _viewModel.FileList.CurrentPreview;
-        }
-
-        if (preview is null)
-        {
-            SetStatus("Unable to load preview.", InfoBarSeverity.Warning);
-            return;
-        }
-
-        var dialog = new ContentDialog
-        {
-            XamlRoot = XamlRoot,
-            Title = $"Quick Look - {preview.Name}",
-            Content = BuildQuickLookContent(preview),
-            PrimaryButtonText = "Close",
-            DefaultButton = ContentDialogButton.Primary
-        };
-
-        await dialog.ShowAsync();
-    }
-
-    private static UIElement BuildQuickLookContent(FilePreviewModel preview)
-    {
-        var stack = new StackPanel
-        {
-            Spacing = 8,
-            Width = 640
-        };
-
-        stack.Children.Add(new TextBlock { Text = preview.Path, TextWrapping = TextWrapping.WrapWholeWords });
-        stack.Children.Add(new TextBlock { Text = $"Type: {preview.ItemType}" });
-        stack.Children.Add(new TextBlock
-        {
-            Text = preview.DateModified is null
-                ? "Modified: (unknown)"
-                : $"Modified: {preview.DateModified.Value.ToLocalTime():G}"
-        });
-
-        if (preview.SizeBytes is not null)
-        {
-            stack.Children.Add(new TextBlock { Text = $"Size: {preview.SizeBytes.Value} bytes" });
-        }
-
-        if (!string.IsNullOrWhiteSpace(preview.ErrorMessage))
-        {
-            stack.Children.Add(new TextBlock
-            {
-                Text = preview.ErrorMessage,
-                TextWrapping = TextWrapping.WrapWholeWords
-            });
-            return new ScrollViewer { Content = stack };
-        }
-
-        if (preview.IsImage && !string.IsNullOrWhiteSpace(preview.ImagePath))
-        {
-            var image = new Image
-            {
-                MaxWidth = 620,
-                MaxHeight = 480,
-                Stretch = Microsoft.UI.Xaml.Media.Stretch.Uniform
-            };
-            image.Source = new BitmapImage(ToFileUri(preview.ImagePath));
-            stack.Children.Add(image);
-            return new ScrollViewer { Content = stack };
-        }
-
-        if (!string.IsNullOrWhiteSpace(preview.TextPreview))
-        {
-            stack.Children.Add(new TextBox
-            {
-                Text = preview.TextPreview,
-                IsReadOnly = true,
-                AcceptsReturn = true,
-                TextWrapping = TextWrapping.Wrap,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                MinHeight = 280
-            });
-        }
-
-        return new ScrollViewer { Content = stack };
-    }
-
-    private static Uri ToFileUri(string path)
-    {
-        if (Uri.TryCreate(path, UriKind.Absolute, out var directUri) &&
-            directUri.IsAbsoluteUri &&
-            string.Equals(directUri.Scheme, Uri.UriSchemeFile, StringComparison.OrdinalIgnoreCase))
-        {
-            return directUri;
-        }
-
-        var normalized = path.Replace('\\', '/');
-        return new Uri($"file:///{normalized}");
     }
 
     private async Task DeleteSelectedItemAsync()
@@ -644,7 +493,6 @@ public partial class MainPage : Page
         }
 
         CancelActiveSearch();
-        CancelActivePreviewLoad();
         var success = await _viewModel.NavigateToAsync(targetPath);
         UpdateNavigationUi();
 
@@ -739,7 +587,6 @@ public partial class MainPage : Page
     private void OnPageUnloaded(object sender, RoutedEventArgs e)
     {
         CancelActiveSearch();
-        CancelActivePreviewLoad();
     }
 
     private CancellationTokenSource StartSearch()
@@ -774,39 +621,6 @@ public partial class MainPage : Page
         }
 
         _activeSearchCancellation = null;
-        cancellation.Cancel();
-        cancellation.Dispose();
-    }
-
-    private CancellationTokenSource StartPreviewLoad()
-    {
-        CancelActivePreviewLoad();
-
-        var cancellation = new CancellationTokenSource();
-        _activePreviewCancellation = cancellation;
-        return cancellation;
-    }
-
-    private void CompletePreviewLoad(CancellationTokenSource cancellation)
-    {
-        if (!ReferenceEquals(_activePreviewCancellation, cancellation))
-        {
-            return;
-        }
-
-        _activePreviewCancellation = null;
-        cancellation.Dispose();
-    }
-
-    private void CancelActivePreviewLoad()
-    {
-        var cancellation = _activePreviewCancellation;
-        if (cancellation is null)
-        {
-            return;
-        }
-
-        _activePreviewCancellation = null;
         cancellation.Cancel();
         cancellation.Dispose();
     }
