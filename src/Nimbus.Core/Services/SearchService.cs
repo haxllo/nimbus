@@ -35,20 +35,18 @@ public sealed class SearchService : ISearchService
             cancellationToken.ThrowIfCancellationRequested();
             var current = stack.Pop();
 
-            foreach (var file in EnumerateFilesSafely(current, filePattern))
+            EnumerateFilesSafely(current, filePattern, cancellationToken, file =>
             {
-                cancellationToken.ThrowIfCancellationRequested();
                 if (hasWildcards || IsPlainTextMatch(file, trimmedQuery))
                 {
                     results.Add(file);
                 }
-            }
+            });
 
-            foreach (var dir in EnumerateDirectoriesSafely(current))
+            EnumerateDirectoriesSafely(current, cancellationToken, dir =>
             {
-                cancellationToken.ThrowIfCancellationRequested();
                 stack.Push(dir);
-            }
+            });
         }
 
         var orderedResults = results
@@ -67,117 +65,146 @@ public sealed class SearchService : ISearchService
         return fileName.Contains(query, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static IEnumerable<string> EnumerateFilesSafely(string directory, string pattern)
+    private static void EnumerateFilesSafely(
+        string directory,
+        string pattern,
+        CancellationToken cancellationToken,
+        Action<string> onFile)
     {
-        IEnumerable<string> files;
+        IEnumerator<string>? enumerator;
         try
         {
-            files = Directory.EnumerateFiles(directory, pattern, DirectoryEnumerationOptions);
+            enumerator = Directory
+                .EnumerateFiles(directory, pattern, DirectoryEnumerationOptions)
+                .GetEnumerator();
         }
         catch (UnauthorizedAccessException)
         {
-            yield break;
+            return;
         }
         catch (DirectoryNotFoundException)
         {
-            yield break;
+            return;
         }
         catch (PathTooLongException)
         {
-            yield break;
+            return;
         }
         catch (IOException)
         {
-            yield break;
+            return;
         }
         catch (ArgumentException)
         {
-            yield break;
+            return;
         }
 
-        try
+        using (enumerator)
         {
-            foreach (var file in files)
+            while (true)
             {
-                yield return file;
+                cancellationToken.ThrowIfCancellationRequested();
+                try
+                {
+                    if (!enumerator.MoveNext())
+                    {
+                        break;
+                    }
+
+                    onFile(enumerator.Current);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    break;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    break;
+                }
+                catch (PathTooLongException)
+                {
+                    break;
+                }
+                catch (IOException)
+                {
+                    break;
+                }
+                catch (ArgumentException)
+                {
+                    break;
+                }
             }
-        }
-        catch (UnauthorizedAccessException)
-        {
-            yield break;
-        }
-        catch (DirectoryNotFoundException)
-        {
-            yield break;
-        }
-        catch (PathTooLongException)
-        {
-            yield break;
-        }
-        catch (IOException)
-        {
-            yield break;
-        }
-        catch (ArgumentException)
-        {
-            yield break;
         }
     }
 
-    private static IEnumerable<string> EnumerateDirectoriesSafely(string directory)
+    private static void EnumerateDirectoriesSafely(
+        string directory,
+        CancellationToken cancellationToken,
+        Action<string> onDirectory)
     {
-        IEnumerable<string> directories;
+        IEnumerator<string>? enumerator;
         try
         {
-            directories = Directory.EnumerateDirectories(directory, "*", DirectoryEnumerationOptions);
+            enumerator = Directory
+                .EnumerateDirectories(directory, "*", DirectoryEnumerationOptions)
+                .GetEnumerator();
         }
         catch (UnauthorizedAccessException)
         {
-            yield break;
+            return;
         }
         catch (DirectoryNotFoundException)
         {
-            yield break;
+            return;
         }
         catch (PathTooLongException)
         {
-            yield break;
+            return;
         }
         catch (IOException)
         {
-            yield break;
+            return;
         }
         catch (ArgumentException)
         {
-            yield break;
+            return;
         }
 
-        try
+        using (enumerator)
         {
-            foreach (var childDirectory in directories)
+            while (true)
             {
-                yield return childDirectory;
+                cancellationToken.ThrowIfCancellationRequested();
+                try
+                {
+                    if (!enumerator.MoveNext())
+                    {
+                        break;
+                    }
+
+                    onDirectory(enumerator.Current);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    break;
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    break;
+                }
+                catch (PathTooLongException)
+                {
+                    break;
+                }
+                catch (IOException)
+                {
+                    break;
+                }
+                catch (ArgumentException)
+                {
+                    break;
+                }
             }
-        }
-        catch (UnauthorizedAccessException)
-        {
-            yield break;
-        }
-        catch (DirectoryNotFoundException)
-        {
-            yield break;
-        }
-        catch (PathTooLongException)
-        {
-            yield break;
-        }
-        catch (IOException)
-        {
-            yield break;
-        }
-        catch (ArgumentException)
-        {
-            yield break;
         }
     }
 }
