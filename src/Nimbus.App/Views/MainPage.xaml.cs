@@ -15,11 +15,19 @@ namespace Nimbus.App.Views;
 /// </summary>
 public partial class MainPage : Page
 {
+    private const double MinSidebarWidth = 180;
+    private const double MaxSidebarWidth = 520;
+    private const double MinPreviewWidth = 220;
+    private const double MaxPreviewWidth = 620;
     private readonly MainPageViewModel _viewModel;
     private readonly ISearchService _searchService;
     private readonly IPaneLayoutService _paneLayoutService;
     private CancellationTokenSource? _activeSearchCancellation;
     private CancellationTokenSource? _activePreviewCancellation;
+    private bool _isSidebarSplitterDragging;
+    private bool _isPreviewSplitterDragging;
+    private double _splitterDragStartX;
+    private double _splitterInitialWidth;
 
     public MainPage()
     {
@@ -342,8 +350,117 @@ public partial class MainPage : Page
         viewModel.FileList.SetSort(sortField, descending);
     }
 
-    private void OnPaneSplitterPointerReleased(object sender, PointerRoutedEventArgs e)
+    private void OnSidebarSplitterPointerPressed(object sender, PointerRoutedEventArgs e)
     {
+        if (sender is not UIElement element)
+        {
+            return;
+        }
+
+        _isSidebarSplitterDragging = true;
+        _splitterDragStartX = e.GetCurrentPoint(this).Position.X;
+        _splitterInitialWidth = SidebarColumn.ActualWidth > 0 ? SidebarColumn.ActualWidth : SidebarColumn.Width.Value;
+        element.CapturePointer(e.Pointer);
+    }
+
+    private void OnSidebarSplitterPointerMoved(object sender, PointerRoutedEventArgs e)
+    {
+        if (!_isSidebarSplitterDragging)
+        {
+            return;
+        }
+
+        var currentX = e.GetCurrentPoint(this).Position.X;
+        var delta = currentX - _splitterDragStartX;
+        var nextWidth = Math.Clamp(_splitterInitialWidth + delta, MinSidebarWidth, MaxSidebarWidth);
+        SidebarColumn.Width = new GridLength(nextWidth, GridUnitType.Pixel);
+    }
+
+    private void OnSidebarSplitterPointerReleased(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is UIElement element)
+        {
+            element.ReleasePointerCapture(e.Pointer);
+        }
+
+        CompleteSidebarSplitterDrag();
+    }
+
+    private void OnSidebarSplitterPointerCanceled(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is UIElement element)
+        {
+            element.ReleasePointerCapture(e.Pointer);
+        }
+
+        CompleteSidebarSplitterDrag();
+    }
+
+    private void OnPreviewSplitterPointerPressed(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is not UIElement element)
+        {
+            return;
+        }
+
+        _isPreviewSplitterDragging = true;
+        _splitterDragStartX = e.GetCurrentPoint(this).Position.X;
+        _splitterInitialWidth = PreviewColumn.ActualWidth > 0 ? PreviewColumn.ActualWidth : PreviewColumn.Width.Value;
+        element.CapturePointer(e.Pointer);
+    }
+
+    private void OnPreviewSplitterPointerMoved(object sender, PointerRoutedEventArgs e)
+    {
+        if (!_isPreviewSplitterDragging)
+        {
+            return;
+        }
+
+        var currentX = e.GetCurrentPoint(this).Position.X;
+        var delta = currentX - _splitterDragStartX;
+        var nextWidth = Math.Clamp(_splitterInitialWidth - delta, MinPreviewWidth, MaxPreviewWidth);
+        PreviewColumn.Width = new GridLength(nextWidth, GridUnitType.Pixel);
+    }
+
+    private void OnPreviewSplitterPointerReleased(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is UIElement element)
+        {
+            element.ReleasePointerCapture(e.Pointer);
+        }
+
+        CompletePreviewSplitterDrag();
+    }
+
+    private void OnPreviewSplitterPointerCanceled(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is UIElement element)
+        {
+            element.ReleasePointerCapture(e.Pointer);
+        }
+
+        CompletePreviewSplitterDrag();
+    }
+
+    private void CompleteSidebarSplitterDrag()
+    {
+        if (!_isSidebarSplitterDragging)
+        {
+            return;
+        }
+
+        _isSidebarSplitterDragging = false;
+        PersistPaneLayout();
+    }
+
+    private void CompletePreviewSplitterDrag()
+    {
+        if (!_isPreviewSplitterDragging)
+        {
+            return;
+        }
+
+        _isPreviewSplitterDragging = false;
         PersistPaneLayout();
     }
 
@@ -991,6 +1108,8 @@ public partial class MainPage : Page
 
     private void OnPageUnloaded(object sender, RoutedEventArgs e)
     {
+        CompleteSidebarSplitterDrag();
+        CompletePreviewSplitterDrag();
         PersistPaneLayout();
         Sidebar.LocationSelected -= OnSidebarLocationSelected;
         Sidebar.SavedSearchSelected -= OnSidebarSavedSearchSelected;
