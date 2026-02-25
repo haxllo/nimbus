@@ -89,7 +89,7 @@
                     <TextBlock Text="{Binding FileList.CurrentPreview.ErrorMessage}" TextWrapping="WrapWholeWords" />
                     <TextBlock Text="{Binding FileList.CurrentPreview.ImagePath}" TextWrapping="WrapWholeWords" />
                     <TextBox
-                        Text="{Binding FileList.CurrentPreview.TextPreview}"
+                        Text="{Binding FileList.CurrentPreview.TextPreview, Mode=OneWay}"
                         IsReadOnly="True"
                         AcceptsReturn="True"
                         TextWrapping="Wrap"
