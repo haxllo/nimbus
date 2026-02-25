@@ -16,10 +16,15 @@
         <KeyboardAccelerator Key="Delete" Invoked="OnDeleteAcceleratorInvoked" />
         <KeyboardAccelerator Key="F2" Invoked="OnRenameAcceleratorInvoked" />
         <KeyboardAccelerator Key="F" Modifiers="Control" Invoked="OnSearchFocusAcceleratorInvoked" />
+        <KeyboardAccelerator Key="T" Modifiers="Control" Invoked="OnNewTabAcceleratorInvoked" />
+        <KeyboardAccelerator Key="W" Modifiers="Control" Invoked="OnCloseTabAcceleratorInvoked" />
+        <KeyboardAccelerator Key="Tab" Modifiers="Control" Invoked="OnNextTabAcceleratorInvoked" />
+        <KeyboardAccelerator Key="Tab" Modifiers="Control,Shift" Invoked="OnPreviousTabAcceleratorInvoked" />
     </Page.KeyboardAccelerators>
     <Page.Content>
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -66,13 +71,27 @@
                 <TextBox x:Name="SearchBox" Grid.Column="9" PlaceholderText="Search" KeyDown="OnSearchBoxKeyDown" ToolTipService.ToolTip="Search (Ctrl+F)" />
             </Grid>
 
-            <ScrollViewer Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
+            <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Padding="12,0,12,4" ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
+                    <StackPanel x:Name="TabStripPanel" Orientation="Horizontal" Spacing="6" />
+                </ScrollViewer>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                    <Button x:Name="NewTabButton" Content="+ Tab" Click="OnNewTabClicked" ToolTipService.ToolTip="New Tab (Ctrl+T)" />
+                    <Button x:Name="CloseTabButton" Content="Close Tab" Click="OnCloseTabClicked" ToolTipService.ToolTip="Close Tab (Ctrl+W)" />
+                </StackPanel>
+            </Grid>
+
+            <ScrollViewer Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" HorizontalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" VerticalScrollBarVisibility="Disabled" VerticalScrollMode="Disabled">
                 <StackPanel x:Name="BreadcrumbPanel" Orientation="Horizontal" Spacing="4" Padding="12,4,12,8" />
             </ScrollViewer>
 
-            <views:SidebarView x:Name="Sidebar" Grid.Row="2" Grid.Column="0" DataContext="{Binding Sidebar}" />
-            <views:FileListView x:Name="FileList" Grid.Row="2" Grid.Column="1" DataContext="{Binding FileList}" />
-            <Border Grid.Row="2" Grid.Column="2" Margin="8,0,12,0" Padding="12" BorderThickness="1" CornerRadius="8">
+            <views:SidebarView x:Name="Sidebar" Grid.Row="3" Grid.Column="0" DataContext="{Binding Sidebar}" />
+            <views:FileListView x:Name="FileList" Grid.Row="3" Grid.Column="1" DataContext="{Binding FileList}" />
+            <Border Grid.Row="3" Grid.Column="2" Margin="8,0,12,0" Padding="12" BorderThickness="1" CornerRadius="8">
                 <StackPanel Spacing="8">
                     <TextBlock Text="Preview" FontSize="16" FontWeight="SemiBold" />
                     <TextBlock Text="Name" FontWeight="SemiBold" />
@@ -88,7 +107,7 @@
                     </Border>
                 </StackPanel>
             </Border>
-            <Border Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3" Padding="12,8">
+            <Border Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Padding="12,8">
                 <InfoBar
                     x:Name="StatusInfoBar"
                     IsOpen="True"

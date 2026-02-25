@@ -1,3 +1,5 @@
+using System.Collections.Specialized;
+using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -29,6 +31,8 @@ public partial class MainPage : Page
         Sidebar.SavedSearchSelected += OnSidebarSavedSearchSelected;
         FileList.ItemInvoked += OnFileItemInvoked;
         FileList.ItemSelectionChanged += OnFileItemSelectionChanged;
+        _viewModel.Tabs.Tabs.CollectionChanged += OnTabsCollectionChanged;
+        _viewModel.Tabs.PropertyChanged += OnTabsPropertyChanged;
         Unloaded += OnPageUnloaded;
 
         _ = InitializeAsync();
@@ -125,6 +129,16 @@ public partial class MainPage : Page
         await DeleteSelectedItemAsync();
     }
 
+    private async void OnNewTabClicked(object sender, RoutedEventArgs e)
+    {
+        await OpenNewTabAsync();
+    }
+
+    private async void OnCloseTabClicked(object sender, RoutedEventArgs e)
+    {
+        await CloseCurrentTabAsync();
+    }
+
     private async void OnBackAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
         if (IsTextInputFocused())
@@ -193,6 +207,50 @@ public partial class MainPage : Page
         args.Handled = true;
     }
 
+    private async void OnNewTabAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
+        await OpenNewTabAsync();
+        args.Handled = true;
+    }
+
+    private async void OnCloseTabAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
+        await CloseCurrentTabAsync();
+        args.Handled = true;
+    }
+
+    private async void OnNextTabAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
+        await SwitchToNextTabAsync();
+        args.Handled = true;
+    }
+
+    private async void OnPreviousTabAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
+        await SwitchToPreviousTabAsync();
+        args.Handled = true;
+    }
+
     private void OnViewModeSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (DataContext is not MainPageViewModel viewModel)
@@ -219,6 +277,59 @@ public partial class MainPage : Page
         };
 
         viewModel.FileList.SetViewModeForCurrentPath(selectedMode);
+    }
+
+    private async Task OpenNewTabAsync()
+    {
+        CancelActiveSearch();
+        var success = await _viewModel.OpenNewTabAsync();
+        UpdateNavigationUi();
+        SetStatus(
+            success ? "Opened new tab." : "Unable to open a new tab.",
+            success ? InfoBarSeverity.Success : InfoBarSeverity.Error);
+    }
+
+    private async Task CloseCurrentTabAsync()
+    {
+        CancelActiveSearch();
+        var success = await _viewModel.CloseCurrentTabAsync();
+        UpdateNavigationUi();
+        SetStatus(
+            success ? "Closed tab." : "At least one tab must remain open.",
+            success ? InfoBarSeverity.Informational : InfoBarSeverity.Warning);
+    }
+
+    private async Task SwitchToTabAsync(Guid tabId)
+    {
+        CancelActiveSearch();
+        var success = await _viewModel.SwitchToTabAsync(tabId);
+        UpdateNavigationUi();
+        if (!success)
+        {
+            SetStatus("Unable to switch tab.", InfoBarSeverity.Error);
+        }
+    }
+
+    private async Task SwitchToNextTabAsync()
+    {
+        CancelActiveSearch();
+        var success = await _viewModel.SwitchToNextTabAsync();
+        UpdateNavigationUi();
+        if (!success)
+        {
+            SetStatus("No next tab available.", InfoBarSeverity.Warning);
+        }
+    }
+
+    private async Task SwitchToPreviousTabAsync()
+    {
+        CancelActiveSearch();
+        var success = await _viewModel.SwitchToPreviousTabAsync();
+        UpdateNavigationUi();
+        if (!success)
+        {
+            SetStatus("No previous tab available.", InfoBarSeverity.Warning);
+        }
     }
 
     private async Task NavigateBackAsync()
@@ -517,6 +628,16 @@ public partial class MainPage : Page
         }
     }
 
+    private async void OnTabClicked(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: Guid tabId })
+        {
+            return;
+        }
+
+        await SwitchToTabAsync(tabId);
+    }
+
     private async void OnBreadcrumbClicked(object sender, RoutedEventArgs e)
     {
         if (sender is not Button { Tag: string targetPath })
@@ -550,6 +671,7 @@ public partial class MainPage : Page
         NewFolderButton.IsEnabled = !string.IsNullOrWhiteSpace(_viewModel.Navigation.CurrentPath);
         RenameButton.IsEnabled = _viewModel.FileList.SelectedItem is not null;
         DeleteButton.IsEnabled = _viewModel.FileList.SelectedItem is not null;
+        CloseTabButton.IsEnabled = _viewModel.Tabs.CanCloseActiveTab;
     }
 
     private void UpdateBreadcrumbs()
@@ -585,8 +707,51 @@ public partial class MainPage : Page
         }
     }
 
+    private void UpdateTabStrip()
+    {
+        TabStripPanel.Children.Clear();
+
+        var activeTabId = _viewModel.Tabs.ActiveTab?.Id;
+        foreach (var tab in _viewModel.Tabs.Tabs)
+        {
+            var button = new Button
+            {
+                Content = tab.Title,
+                Tag = tab.Id,
+                MinWidth = 100,
+                MaxWidth = 220
+            };
+            button.Click += OnTabClicked;
+
+            if (activeTabId == tab.Id)
+            {
+                button.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
+            }
+
+            TabStripPanel.Children.Add(button);
+        }
+    }
+
+    private void OnTabsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        UpdateTabStrip();
+        UpdateNavButtons();
+    }
+
+    private void OnTabsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(TabsViewModel.ActiveTab) or nameof(TabsViewModel.CanCloseActiveTab))
+        {
+            UpdateTabStrip();
+            UpdatePathBox();
+            UpdateNavButtons();
+            UpdateBreadcrumbs();
+        }
+    }
+
     private void UpdateNavigationUi()
     {
+        UpdateTabStrip();
         UpdateViewModeSelector();
         UpdatePathBox();
         UpdateNavButtons();
@@ -618,6 +783,8 @@ public partial class MainPage : Page
 
     private void OnPageUnloaded(object sender, RoutedEventArgs e)
     {
+        _viewModel.Tabs.Tabs.CollectionChanged -= OnTabsCollectionChanged;
+        _viewModel.Tabs.PropertyChanged -= OnTabsPropertyChanged;
         CancelActiveSearch();
     }
 
