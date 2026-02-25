@@ -176,6 +176,19 @@ public partial class MainPage : Page
         args.Handled = true;
     }
 
+    private void OnViewModeSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var selectedMode = ViewModeSelector.SelectedIndex switch
+        {
+            1 => FileViewMode.Icon,
+            2 => FileViewMode.Column,
+            3 => FileViewMode.Gallery,
+            _ => FileViewMode.List
+        };
+
+        _viewModel.FileList.SetViewModeForCurrentPath(selectedMode);
+    }
+
     private async Task NavigateBackAsync()
     {
         CancelActiveSearch();
@@ -527,9 +540,26 @@ public partial class MainPage : Page
 
     private void UpdateNavigationUi()
     {
+        UpdateViewModeSelector();
         UpdatePathBox();
         UpdateNavButtons();
         UpdateBreadcrumbs();
+    }
+
+    private void UpdateViewModeSelector()
+    {
+        var selectedIndex = _viewModel.FileList.CurrentViewMode switch
+        {
+            FileViewMode.Icon => 1,
+            FileViewMode.Column => 2,
+            FileViewMode.Gallery => 3,
+            _ => 0
+        };
+
+        if (ViewModeSelector.SelectedIndex != selectedIndex)
+        {
+            ViewModeSelector.SelectedIndex = selectedIndex;
+        }
     }
 
     private void SetStatus(string message, InfoBarSeverity severity = InfoBarSeverity.Informational)
