@@ -81,6 +81,10 @@ public sealed class SearchService : ISearchService
         {
             return Array.Empty<string>();
         }
+        catch (ArgumentException)
+        {
+            return Array.Empty<string>();
+        }
     }
 
     private static IEnumerable<string> SafeEnumerateDirectories(string directory)
@@ -102,6 +106,10 @@ public sealed class SearchService : ISearchService
             return Array.Empty<string>();
         }
         catch (PathTooLongException)
+        {
+            return Array.Empty<string>();
+        }
+        catch (ArgumentException)
         {
             return Array.Empty<string>();
         }

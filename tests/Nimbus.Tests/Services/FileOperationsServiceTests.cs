@@ -8,19 +8,25 @@ public class FileOperationsServiceTests
     public async Task CopyFile_Creates_Destination()
     {
         var svc = new FileOperationsService();
-        var temp = Path.Combine(Path.GetTempPath(), "nimbus-tests");
+        var temp = Path.Combine(Path.GetTempPath(), $"nimbus-tests-{Guid.NewGuid():N}");
         Directory.CreateDirectory(temp);
 
-        var src = Path.Combine(temp, "nimbus-src.txt");
-        var dst = Path.Combine(temp, "nimbus-dst.txt");
+        try
+        {
+            var src = Path.Combine(temp, "nimbus-src.txt");
+            var dst = Path.Combine(temp, "nimbus-dst.txt");
 
-        await File.WriteAllTextAsync(src, "x");
-        await svc.CopyAsync(src, dst);
+            await File.WriteAllTextAsync(src, "x");
+            await svc.CopyAsync(src, dst);
 
-        Assert.True(File.Exists(dst));
-
-        File.Delete(src);
-        File.Delete(dst);
-        Directory.Delete(temp, recursive: true);
+            Assert.True(File.Exists(dst));
+        }
+        finally
+        {
+            if (Directory.Exists(temp))
+            {
+                Directory.Delete(temp, recursive: true);
+            }
+        }
     }
 }

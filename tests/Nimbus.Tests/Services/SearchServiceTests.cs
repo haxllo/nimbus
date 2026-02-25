@@ -8,18 +8,25 @@ public class SearchServiceTests
     public async Task Search_Returns_Matches()
     {
         var svc = new SearchService();
-        var temp = Path.Combine(Path.GetTempPath(), "nimbus-search");
+        var temp = Path.Combine(Path.GetTempPath(), $"nimbus-search-{Guid.NewGuid():N}");
         Directory.CreateDirectory(temp);
 
-        var file = Path.Combine(temp, "nimbus-search.txt");
-        await File.WriteAllTextAsync(file, "x");
+        try
+        {
+            var file = Path.Combine(temp, "nimbus-search.txt");
+            await File.WriteAllTextAsync(file, "x");
 
-        var results = await svc.SearchAsync(temp, "*.txt");
+            var results = await svc.SearchAsync(temp, "*.txt");
 
-        Assert.Contains(file, results);
-
-        File.Delete(file);
-        Directory.Delete(temp, recursive: true);
+            Assert.Contains(file, results);
+        }
+        finally
+        {
+            if (Directory.Exists(temp))
+            {
+                Directory.Delete(temp, recursive: true);
+            }
+        }
     }
 
     [Fact]
@@ -29,15 +36,22 @@ public class SearchServiceTests
         var temp = Path.Combine(Path.GetTempPath(), $"nimbus-search-{Guid.NewGuid():N}");
         Directory.CreateDirectory(temp);
 
-        var file = Path.Combine(temp, "project-notes.md");
-        await File.WriteAllTextAsync(file, "x");
+        try
+        {
+            var file = Path.Combine(temp, "project-notes.md");
+            await File.WriteAllTextAsync(file, "x");
 
-        var results = await svc.SearchAsync(temp, "notes");
+            var results = await svc.SearchAsync(temp, "notes");
 
-        Assert.Contains(file, results);
-
-        File.Delete(file);
-        Directory.Delete(temp, recursive: true);
+            Assert.Contains(file, results);
+        }
+        finally
+        {
+            if (Directory.Exists(temp))
+            {
+                Directory.Delete(temp, recursive: true);
+            }
+        }
     }
 
     [Fact]

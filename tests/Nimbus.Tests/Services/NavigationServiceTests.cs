@@ -16,4 +16,15 @@ public class NavigationServiceTests
         nav.GoBack();
         Assert.Equal("C:\\", nav.CurrentPath);
     }
+
+    [Fact]
+    public void GetBreadcrumbSegments_Returns_Path_Segments()
+    {
+        var nav = new NavigationService();
+        nav.NavigateTo("C:\\Users\\dev");
+
+        var segments = nav.GetBreadcrumbSegments();
+
+        Assert.Equal(new[] { "C:", "Users", "dev" }, segments);
+    }
 }
