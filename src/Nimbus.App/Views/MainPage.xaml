@@ -20,6 +20,7 @@
         <KeyboardAccelerator Key="W" Modifiers="Control" Invoked="OnCloseTabAcceleratorInvoked" />
         <KeyboardAccelerator Key="Tab" Modifiers="Control" Invoked="OnNextTabAcceleratorInvoked" />
         <KeyboardAccelerator Key="Tab" Modifiers="Control,Shift" Invoked="OnPreviousTabAcceleratorInvoked" />
+        <KeyboardAccelerator Key="Space" Invoked="OnQuickLookAcceleratorInvoked" />
     </Page.KeyboardAccelerators>
     <Page.Content>
         <Grid>
@@ -95,15 +96,21 @@
                 <StackPanel Spacing="8">
                     <TextBlock Text="Preview" FontSize="16" FontWeight="SemiBold" />
                     <TextBlock Text="Name" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding FileList.SelectedItem.DisplayName}" />
+                    <TextBlock Text="{Binding FileList.CurrentPreview.Name}" />
                     <TextBlock Text="Path" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding FileList.SelectedItem.Path}" TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="{Binding FileList.CurrentPreview.Path}" TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="Type" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding FileList.CurrentPreview.ItemType}" />
                     <TextBlock Text="Modified" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding FileList.SelectedItem.DateModified}" />
+                    <TextBlock Text="{Binding FileList.CurrentPreview.DateModified}" />
                     <TextBlock Text="Size (bytes)" FontWeight="SemiBold" />
-                    <TextBlock Text="{Binding FileList.SelectedItem.SizeBytes}" />
+                    <TextBlock Text="{Binding FileList.CurrentPreview.SizeBytes}" />
+                    <TextBlock Text="Status" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding FileList.CurrentPreview.ErrorMessage}" TextWrapping="WrapWholeWords" />
+                    <TextBlock Text="Text Preview" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding FileList.CurrentPreview.TextPreview}" TextWrapping="WrapWholeWords" MaxLines="14" />
                     <Border Margin="0,12,0,0" Padding="8" CornerRadius="6">
-                        <TextBlock Text="Quick Look (Space) and richer previews are coming in the next feature slice." TextWrapping="WrapWholeWords" />
+                        <TextBlock Text="Press Space for Quick Look." TextWrapping="WrapWholeWords" />
                     </Border>
                 </StackPanel>
             </Border>

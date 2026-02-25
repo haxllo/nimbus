@@ -18,6 +18,7 @@ public partial class MainPage : Page
     private readonly MainPageViewModel _viewModel;
     private readonly ISearchService _searchService;
     private CancellationTokenSource? _activeSearchCancellation;
+    private CancellationTokenSource? _activePreviewCancellation;
 
     public MainPage()
     {
@@ -94,9 +95,10 @@ public partial class MainPage : Page
         await ExecuteSearchAsync(savedSearch.RootPath, savedSearch.Query, savedSearch.DisplayName);
     }
 
-    private void OnFileItemSelectionChanged(object? sender, EventArgs e)
+    private async void OnFileItemSelectionChanged(object? sender, EventArgs e)
     {
         UpdateNavButtons();
+        await LoadSelectionPreviewAsync();
     }
 
     private async void OnBackClicked(object sender, RoutedEventArgs e)
@@ -251,6 +253,17 @@ public partial class MainPage : Page
         args.Handled = true;
     }
 
+    private async void OnQuickLookAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        if (IsTextInputFocused())
+        {
+            return;
+        }
+
+        await ShowQuickLookAsync();
+        args.Handled = true;
+    }
+
     private void OnViewModeSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (DataContext is not MainPageViewModel viewModel)
@@ -330,6 +343,127 @@ public partial class MainPage : Page
         {
             SetStatus("No previous tab available.", InfoBarSeverity.Warning);
         }
+    }
+
+    private async Task LoadSelectionPreviewAsync(bool showStatusOnFailure = false)
+    {
+        var previewCancellation = StartPreviewLoad();
+
+        try
+        {
+            await _viewModel.FileList.LoadPreviewForSelectionAsync(previewCancellation.Token);
+            if (!IsActivePreviewLoad(previewCancellation))
+            {
+                return;
+            }
+
+            var previewError = _viewModel.FileList.CurrentPreview?.ErrorMessage;
+            if (showStatusOnFailure &&
+                !string.IsNullOrWhiteSpace(previewError))
+            {
+                SetStatus(previewError, InfoBarSeverity.Warning);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Ignore stale preview loads.
+        }
+        catch (Exception ex)
+        {
+            if (showStatusOnFailure && IsActivePreviewLoad(previewCancellation))
+            {
+                SetStatus($"Unable to load preview: {ex.Message}", InfoBarSeverity.Error);
+            }
+        }
+        finally
+        {
+            CompletePreviewLoad(previewCancellation);
+        }
+    }
+
+    private async Task ShowQuickLookAsync()
+    {
+        if (_viewModel.FileList.SelectedItem is null)
+        {
+            SetStatus("Select an item to open Quick Look.", InfoBarSeverity.Warning);
+            return;
+        }
+
+        await LoadSelectionPreviewAsync(showStatusOnFailure: true);
+        var preview = _viewModel.FileList.CurrentPreview;
+        if (preview is null)
+        {
+            SetStatus("Preview is unavailable for the selected item.", InfoBarSeverity.Warning);
+            return;
+        }
+
+        var details = new List<string>
+        {
+            $"Path: {preview.Path}",
+            $"Type: {preview.ItemType}"
+        };
+
+        if (preview.DateModified is { } modified)
+        {
+            details.Add($"Modified: {modified.LocalDateTime:g}");
+        }
+
+        if (preview.SizeBytes is { } sizeBytes)
+        {
+            details.Add($"Size: {sizeBytes} bytes");
+        }
+
+        if (!string.IsNullOrWhiteSpace(preview.ErrorMessage))
+        {
+            details.Add($"Status: {preview.ErrorMessage}");
+        }
+
+        var previewText = preview.TextPreview;
+        if (preview.IsImage && !string.IsNullOrWhiteSpace(preview.ImagePath))
+        {
+            previewText = $"Image file: {preview.ImagePath}";
+        }
+
+        if (string.IsNullOrWhiteSpace(previewText))
+        {
+            previewText = "No text preview available for this item.";
+        }
+
+        var content = new StackPanel
+        {
+            Spacing = 10
+        };
+        content.Children.Add(new TextBlock
+        {
+            Text = string.Join(Environment.NewLine, details),
+            TextWrapping = TextWrapping.WrapWholeWords
+        });
+        content.Children.Add(new TextBlock
+        {
+            Text = "Preview",
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+        });
+        content.Children.Add(new ScrollViewer
+        {
+            Height = 320,
+            Content = new TextBlock
+            {
+                Text = previewText,
+                TextWrapping = TextWrapping.WrapWholeWords,
+                IsTextSelectionEnabled = true
+            }
+        });
+
+        var dialog = new ContentDialog
+        {
+            XamlRoot = XamlRoot,
+            Title = $"Quick Look - {preview.Name}",
+            Content = content,
+            PrimaryButtonText = "Close",
+            DefaultButton = ContentDialogButton.Primary
+        };
+
+        await dialog.ShowAsync();
     }
 
     private async Task NavigateBackAsync()
@@ -786,6 +920,7 @@ public partial class MainPage : Page
         _viewModel.Tabs.Tabs.CollectionChanged -= OnTabsCollectionChanged;
         _viewModel.Tabs.PropertyChanged -= OnTabsPropertyChanged;
         CancelActiveSearch();
+        CancelActivePreviewLoad();
     }
 
     private CancellationTokenSource StartSearch()
@@ -794,6 +929,15 @@ public partial class MainPage : Page
 
         var cancellation = new CancellationTokenSource();
         _activeSearchCancellation = cancellation;
+        return cancellation;
+    }
+
+    private CancellationTokenSource StartPreviewLoad()
+    {
+        CancelActivePreviewLoad();
+
+        var cancellation = new CancellationTokenSource();
+        _activePreviewCancellation = cancellation;
         return cancellation;
     }
 
@@ -811,6 +955,9 @@ public partial class MainPage : Page
     private bool IsActiveSearch(CancellationTokenSource cancellation) =>
         ReferenceEquals(_activeSearchCancellation, cancellation);
 
+    private bool IsActivePreviewLoad(CancellationTokenSource cancellation) =>
+        ReferenceEquals(_activePreviewCancellation, cancellation);
+
     private void CancelActiveSearch()
     {
         var cancellation = _activeSearchCancellation;
@@ -820,6 +967,30 @@ public partial class MainPage : Page
         }
 
         _activeSearchCancellation = null;
+        cancellation.Cancel();
+        cancellation.Dispose();
+    }
+
+    private void CompletePreviewLoad(CancellationTokenSource cancellation)
+    {
+        if (!ReferenceEquals(_activePreviewCancellation, cancellation))
+        {
+            return;
+        }
+
+        _activePreviewCancellation = null;
+        cancellation.Dispose();
+    }
+
+    private void CancelActivePreviewLoad()
+    {
+        var cancellation = _activePreviewCancellation;
+        if (cancellation is null)
+        {
+            return;
+        }
+
+        _activePreviewCancellation = null;
         cancellation.Cancel();
         cancellation.Dispose();
     }
