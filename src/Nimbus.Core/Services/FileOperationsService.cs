@@ -1,3 +1,5 @@
+using Microsoft.VisualBasic.FileIO;
+
 namespace Nimbus.Core.Services;
 
 public sealed class FileOperationsService : IFileOperationsService
@@ -200,6 +202,11 @@ public sealed class FileOperationsService : IFileOperationsService
                     $"Item was not found: {normalizedPath}"));
             }
 
+            if (TryDeleteUsingRecycleBin(normalizedPath))
+            {
+                return Task.FromResult(FileOperationResult.Success($"Moved to Recycle Bin: {normalizedPath}"));
+            }
+
             if (Directory.Exists(normalizedPath))
             {
                 Directory.Delete(normalizedPath, recursive: true);
@@ -221,7 +228,7 @@ public sealed class FileOperationsService : IFileOperationsService
     {
         return exception switch
         {
-            OperationCanceledException => FileOperationResult.Failure(
+            System.OperationCanceledException or Microsoft.VisualBasic.FileIO.OperationCanceledException => FileOperationResult.Failure(
                 FileOperationErrorCode.Cancelled,
                 $"The {operation} operation was cancelled."),
 
@@ -269,6 +276,48 @@ public sealed class FileOperationsService : IFileOperationsService
 
     private static bool PathExists(string path) =>
         Directory.Exists(path) || File.Exists(path);
+
+    private static bool TryDeleteUsingRecycleBin(string path)
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return false;
+        }
+
+        try
+        {
+            if (Directory.Exists(path))
+            {
+                FileSystem.DeleteDirectory(
+                    path,
+                    UIOption.OnlyErrorDialogs,
+                    RecycleOption.SendToRecycleBin,
+                    UICancelOption.ThrowException);
+            }
+            else
+            {
+                FileSystem.DeleteFile(
+                    path,
+                    UIOption.OnlyErrorDialogs,
+                    RecycleOption.SendToRecycleBin,
+                    UICancelOption.ThrowException);
+            }
+
+            return true;
+        }
+        catch (PlatformNotSupportedException)
+        {
+            return false;
+        }
+        catch (DllNotFoundException)
+        {
+            return false;
+        }
+        catch (EntryPointNotFoundException)
+        {
+            return false;
+        }
+    }
 
     private static bool ContainsDirectorySeparators(string pathSegment) =>
         pathSegment.IndexOf(Path.DirectorySeparatorChar) >= 0 ||

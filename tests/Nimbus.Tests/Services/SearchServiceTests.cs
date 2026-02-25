@@ -64,4 +64,30 @@ public class SearchServiceTests
 
         Assert.Empty(results);
     }
+
+    [Fact]
+    public async Task Search_Plain_Text_Query_Includes_Matching_Directories()
+    {
+        var svc = new SearchService();
+        var temp = Path.Combine(Path.GetTempPath(), $"nimbus-search-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(temp);
+
+        try
+        {
+            var matchingDirectory = Path.Combine(temp, "notes-folder");
+            Directory.CreateDirectory(matchingDirectory);
+            await File.WriteAllTextAsync(Path.Combine(matchingDirectory, "inside.txt"), "x");
+
+            var results = await svc.SearchAsync(temp, "notes");
+
+            Assert.Contains(matchingDirectory, results);
+        }
+        finally
+        {
+            if (Directory.Exists(temp))
+            {
+                Directory.Delete(temp, recursive: true);
+            }
+        }
+    }
 }

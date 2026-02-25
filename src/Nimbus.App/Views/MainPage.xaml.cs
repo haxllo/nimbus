@@ -16,11 +16,17 @@ namespace Nimbus.App.Views;
 /// </summary>
 public partial class MainPage : Page
 {
+    private static readonly HashSet<string> ImageExtensions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp", ".tif", ".tiff", ".ico"
+    };
+
     private const double MinSidebarWidth = 180;
     private const double MaxSidebarWidth = 520;
     private const double MinPreviewWidth = 220;
     private const double MaxPreviewWidth = 620;
     private readonly MainPageViewModel _viewModel;
+    private readonly IItemLaunchService _itemLaunchService;
     private readonly ISearchService _searchService;
     private readonly IPaneLayoutService _paneLayoutService;
     private CancellationTokenSource? _activeSearchCancellation;
@@ -35,6 +41,7 @@ public partial class MainPage : Page
         InitializeComponent();
 
         _viewModel = App.Services.GetRequiredService<MainPageViewModel>();
+        _itemLaunchService = App.Services.GetRequiredService<IItemLaunchService>();
         _searchService = App.Services.GetRequiredService<ISearchService>();
         _paneLayoutService = App.Services.GetRequiredService<IPaneLayoutService>();
         DataContext = _viewModel;
@@ -89,7 +96,13 @@ public partial class MainPage : Page
             }
 
             SetStatus($"Opened {e.DisplayName}.", InfoBarSeverity.Success);
+            return;
         }
+
+        var launchResult = await _itemLaunchService.LaunchAsync(e.Path);
+        SetStatus(
+            launchResult.Message,
+            launchResult.IsSuccess ? InfoBarSeverity.Success : InfoBarSeverity.Error);
     }
 
     private async void OnSidebarSavedSearchSelected(object? sender, SavedSearchModel savedSearch)
@@ -754,11 +767,7 @@ public partial class MainPage : Page
             _viewModel.FileList.Items.Clear();
             foreach (var result in results)
             {
-                _viewModel.FileList.Items.Add(new ShellItemModel(result)
-                {
-                    DisplayName = Path.GetFileName(result),
-                    IsFolder = false
-                });
+                _viewModel.FileList.Items.Add(BuildSearchResultItem(result));
             }
 
             SetStatus(
@@ -1335,5 +1344,60 @@ public partial class MainPage : Page
         var selected = _viewModel.FileList.Items.FirstOrDefault(item =>
             string.Equals(item.Path, path, StringComparison.OrdinalIgnoreCase));
         _viewModel.FileList.SelectedItem = selected;
+    }
+
+    private static ShellItemModel BuildSearchResultItem(string path)
+    {
+        var isFolder = Directory.Exists(path);
+        var displayName = Path.GetFileName(path);
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            displayName = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        }
+
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            displayName = path;
+        }
+
+        var item = new ShellItemModel(path)
+        {
+            DisplayName = displayName,
+            IsFolder = isFolder,
+            IconGlyph = isFolder ? "\uE8B7" : "\uE8A5"
+        };
+
+        try
+        {
+            if (isFolder)
+            {
+                var info = new DirectoryInfo(path);
+                item.DateModified = info.Exists ? info.LastWriteTimeUtc : null;
+                item.SizeBytes = null;
+                return item;
+            }
+
+            var fileInfo = new FileInfo(path);
+            if (fileInfo.Exists)
+            {
+                item.DateModified = fileInfo.LastWriteTimeUtc;
+                item.SizeBytes = fileInfo.Length;
+                var extension = fileInfo.Extension;
+                if (ImageExtensions.Contains(extension))
+                {
+                    item.ThumbnailPath = path;
+                }
+            }
+        }
+        catch (Exception ex) when (
+            ex is UnauthorizedAccessException or
+            IOException or
+            PathTooLongException or
+            ArgumentException)
+        {
+            // Best-effort metadata for search projection.
+        }
+
+        return item;
     }
 }

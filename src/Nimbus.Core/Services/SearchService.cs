@@ -1,3 +1,5 @@
+using System.IO.Enumeration;
+
 namespace Nimbus.Core.Services;
 
 public sealed class SearchService : ISearchService
@@ -45,13 +47,21 @@ public sealed class SearchService : ISearchService
 
             EnumerateFilesSafely(current, filePattern, cancellationToken, file =>
             {
-                if (hasWildcards || IsPlainTextMatch(file, query))
+                if (IsQueryMatch(file, query, hasWildcards))
                 {
                     results.Add(file);
                 }
             });
 
-            EnumerateDirectoriesSafely(current, cancellationToken, stack.Push);
+            EnumerateDirectoriesSafely(current, cancellationToken, directory =>
+            {
+                if (IsQueryMatch(directory, query, hasWildcards))
+                {
+                    results.Add(directory);
+                }
+
+                stack.Push(directory);
+            });
         }
 
         return results
@@ -62,10 +72,20 @@ public sealed class SearchService : ISearchService
     private static bool HasWildcards(string query) =>
         query.IndexOf('*') >= 0 || query.IndexOf('?') >= 0;
 
-    private static bool IsPlainTextMatch(string path, string query)
+    private static bool IsQueryMatch(string path, string query, bool hasWildcards)
     {
-        var fileName = Path.GetFileName(path);
-        return fileName.Contains(query, StringComparison.OrdinalIgnoreCase);
+        var name = Path.GetFileName(path);
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            name = path;
+        }
+
+        if (!hasWildcards)
+        {
+            return name.Contains(query, StringComparison.OrdinalIgnoreCase);
+        }
+
+        return FileSystemName.MatchesSimpleExpression(query, name, ignoreCase: true);
     }
 
     private static void EnumerateFilesSafely(

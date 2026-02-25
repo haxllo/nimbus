@@ -73,6 +73,7 @@ namespace Nimbus.App
             services.AddSingleton<IShellItemService, ShellItemService>();
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IFileOperationsService, FileOperationsService>();
+            services.AddSingleton<IItemLaunchService, ItemLaunchService>();
             services.AddSingleton<ISearchService, SearchService>();
             services.AddSingleton<IViewPreferenceService, ViewPreferenceService>();
             services.AddSingleton<IFilePreviewService, FilePreviewService>();
