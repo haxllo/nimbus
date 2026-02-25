@@ -15,6 +15,7 @@ public partial class MainPage : Page
 {
     private readonly MainPageViewModel _viewModel;
     private readonly ISearchService _searchService;
+    private readonly IFileOperationsService _fileOperationsService;
 
     public MainPage()
     {
@@ -22,6 +23,7 @@ public partial class MainPage : Page
 
         _viewModel = App.Services.GetRequiredService<MainPageViewModel>();
         _searchService = App.Services.GetRequiredService<ISearchService>();
+        _fileOperationsService = App.Services.GetRequiredService<IFileOperationsService>();
         DataContext = _viewModel;
 
         Sidebar.LocationSelected += OnSidebarLocationSelected;
@@ -35,46 +37,73 @@ public partial class MainPage : Page
         await _viewModel.InitializeAsync();
         UpdatePathBox();
         UpdateNavButtons();
+        SetStatus("Ready.");
     }
 
     private async void OnSidebarLocationSelected(object? sender, SidebarLocation e)
     {
-        await _viewModel.NavigateToAsync(e.Path);
+        var success = await _viewModel.NavigateToAsync(e.Path);
         UpdatePathBox();
         UpdateNavButtons();
+
+        if (!success)
+        {
+            SetStatus($"Unable to open location: {e.Path}", isError: true);
+            return;
+        }
+
+        SetStatus($"Opened {e.DisplayName}.");
     }
 
     private async void OnFileItemInvoked(object? sender, ShellItemModel e)
     {
         if (e.IsFolder)
         {
-            await _viewModel.NavigateToAsync(e.Path);
+            var success = await _viewModel.NavigateToAsync(e.Path);
             UpdatePathBox();
             UpdateNavButtons();
+
+            if (!success)
+            {
+                SetStatus($"Unable to open folder: {e.Path}", isError: true);
+                return;
+            }
+
+            SetStatus($"Opened {e.DisplayName}.");
         }
     }
 
     private async void OnBackClicked(object sender, RoutedEventArgs e)
     {
-        await _viewModel.GoBackAsync();
+        var success = await _viewModel.GoBackAsync();
         UpdatePathBox();
         UpdateNavButtons();
+        SetStatus(success ? "Navigated back." : "No previous location.");
     }
 
     private async void OnForwardClicked(object sender, RoutedEventArgs e)
     {
-        await _viewModel.GoForwardAsync();
+        var success = await _viewModel.GoForwardAsync();
         UpdatePathBox();
         UpdateNavButtons();
+        SetStatus(success ? "Navigated forward." : "No forward location.");
     }
 
     private async void OnPathBoxKeyDown(object sender, KeyRoutedEventArgs e)
     {
         if (e.Key == Windows.System.VirtualKey.Enter && !string.IsNullOrWhiteSpace(PathBox.Text))
         {
-            await _viewModel.NavigateToAsync(PathBox.Text);
+            var success = await _viewModel.NavigateToAsync(PathBox.Text);
             UpdatePathBox();
             UpdateNavButtons();
+
+            if (!success)
+            {
+                SetStatus($"Path was not found: {PathBox.Text}", isError: true);
+                return;
+            }
+
+            SetStatus($"Opened {PathBox.Text.Trim()}.");
         }
     }
 
@@ -88,19 +117,57 @@ public partial class MainPage : Page
         var root = _viewModel.Navigation.CurrentPath;
         if (string.IsNullOrWhiteSpace(root) || string.IsNullOrWhiteSpace(SearchBox.Text))
         {
+            SetStatus("Enter a search term after opening a folder.");
             return;
         }
 
-        var results = await _searchService.SearchAsync(root, SearchBox.Text);
-        _viewModel.FileList.Items.Clear();
-        foreach (var result in results)
+        try
         {
-            _viewModel.FileList.Items.Add(new ShellItemModel(result)
+            var query = SearchBox.Text.Trim();
+            var results = await _searchService.SearchAsync(root, query);
+
+            _viewModel.FileList.Items.Clear();
+            foreach (var result in results)
             {
-                DisplayName = Path.GetFileName(result),
-                IsFolder = false
-            });
+                _viewModel.FileList.Items.Add(new ShellItemModel(result)
+                {
+                    DisplayName = Path.GetFileName(result),
+                    IsFolder = false
+                });
+            }
+
+            SetStatus(results.Count == 0
+                ? $"No results for \"{query}\"."
+                : $"Found {results.Count} result(s) for \"{query}\".");
         }
+        catch (Exception ex)
+        {
+            SetStatus($"Search failed: {ex.Message}", isError: true);
+        }
+    }
+
+    private async void OnDeleteClicked(object sender, RoutedEventArgs e)
+    {
+        var selectedItem = _viewModel.FileList.SelectedItem;
+        if (selectedItem is null)
+        {
+            SetStatus("Select an item to delete.");
+            return;
+        }
+
+        var result = await _fileOperationsService.DeleteAsync(selectedItem.Path);
+        if (!result.IsSuccess)
+        {
+            SetStatus(result.Message, isError: true);
+            return;
+        }
+
+        if (_viewModel.Navigation.CurrentPath is { } currentPath)
+        {
+            await _viewModel.FileList.LoadAsync(currentPath);
+        }
+
+        SetStatus(result.Message);
     }
 
     private void UpdatePathBox()
@@ -112,5 +179,10 @@ public partial class MainPage : Page
     {
         BackButton.IsEnabled = _viewModel.Navigation.CanGoBack;
         ForwardButton.IsEnabled = _viewModel.Navigation.CanGoForward;
+    }
+
+    private void SetStatus(string message, bool isError = false)
+    {
+        StatusTextBlock.Text = isError ? $"Error: {message}" : message;
     }
 }

@@ -37,7 +37,9 @@ Status:
 - [x] `SearchService` supports wildcard and plain-text queries; safely skips inaccessible directories.
 - [x] `MainPageViewModel` now has safe async navigation/back/forward flows that reload list state.
 - [x] Added tests for shell enumeration ordering/failures, search query modes, and main-page navigation behavior.
-- [ ] Add file operation error-result model (non-throwing UI feedback contract).
+- [x] Added file operation error-result model (`FileOperationResult`) with explicit error codes.
+- [x] Added UI status bar feedback for navigation, search, and file operation failures.
+- [x] Added file operation failure tests for missing source, destination conflicts, and unauthorized access mapping.
 
 Exit Criteria:
 - No unhandled exceptions when navigating missing or inaccessible folders.
@@ -70,7 +72,7 @@ Exit Criteria:
 - File operations succeed in temp directories and provide actionable errors on failures.
 
 ## Immediate Next Tasks
-1. Add operation result model (`Success`, `ErrorCode`, `Message`) for `IFileOperationsService`.
-2. Surface operation/search/navigation errors in UI status area instead of silent failures.
-3. Implement breadcrumb segment control with click-to-navigate.
-4. Add targeted tests for file operation failures (`UnauthorizedAccessException`, missing source, conflicts).
+1. Implement breadcrumb segment control with click-to-navigate.
+2. Add keyboard shortcuts for core actions (`Alt+Left`, `Alt+Right`, `Delete`, `Ctrl+F`).
+3. Add targeted tests for rename/delete edge cases and cancellation behavior.
+4. Add operation confirmation/feedback UX polish (success toast and optional delete confirmation).

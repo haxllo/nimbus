@@ -8,6 +8,7 @@
         <ListView
             x:Name="FileList"
             ItemsSource="{Binding Items}"
+            SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
             DoubleTapped="OnDoubleTapped">
             <ListView.ItemTemplate>
                 <DataTemplate>
