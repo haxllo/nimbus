@@ -1,3 +1,5 @@
+using Nimbus.Core.Models;
+
 namespace Nimbus.Core.Services;
 
 public sealed class NavigationService : INavigationService
@@ -59,22 +61,47 @@ public sealed class NavigationService : INavigationService
 
     public IReadOnlyList<string> GetBreadcrumbSegments()
     {
+        return GetBreadcrumbItems().Select(i => i.Label).ToArray();
+    }
+
+    public IReadOnlyList<BreadcrumbItem> GetBreadcrumbItems()
+    {
         if (string.IsNullOrWhiteSpace(CurrentPath))
         {
-            return Array.Empty<string>();
+            return Array.Empty<BreadcrumbItem>();
         }
 
-        var segments = new List<string>();
+        var segments = new List<BreadcrumbItem>();
         var pathRoot = Path.GetPathRoot(CurrentPath);
 
         if (!string.IsNullOrWhiteSpace(pathRoot))
         {
-            segments.Add(pathRoot.TrimEnd(Path.DirectorySeparatorChar));
+            var displayRoot = pathRoot.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            if (string.IsNullOrWhiteSpace(displayRoot))
+            {
+                displayRoot = pathRoot;
+            }
+
+            segments.Add(new BreadcrumbItem(displayRoot, pathRoot));
         }
 
         var remainder = CurrentPath.Substring(pathRoot?.Length ?? 0);
-        var parts = remainder.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
-        segments.AddRange(parts);
+        var parts = remainder.Split(
+            new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar },
+            StringSplitOptions.RemoveEmptyEntries);
+
+        var current = pathRoot ?? string.Empty;
+        foreach (var part in parts)
+        {
+            current = string.IsNullOrEmpty(current) ? part : Path.Combine(current, part);
+            segments.Add(new BreadcrumbItem(part, current));
+        }
+
+        if (segments.Count == 0)
+        {
+            segments.Add(new BreadcrumbItem(CurrentPath, CurrentPath));
+        }
+
         return segments;
     }
 }

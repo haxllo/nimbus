@@ -35,16 +35,14 @@ public partial class MainPage : Page
     private async Task InitializeAsync()
     {
         await _viewModel.InitializeAsync();
-        UpdatePathBox();
-        UpdateNavButtons();
+        UpdateNavigationUi();
         SetStatus("Ready.");
     }
 
     private async void OnSidebarLocationSelected(object? sender, SidebarLocation e)
     {
         var success = await _viewModel.NavigateToAsync(e.Path);
-        UpdatePathBox();
-        UpdateNavButtons();
+        UpdateNavigationUi();
 
         if (!success)
         {
@@ -60,8 +58,7 @@ public partial class MainPage : Page
         if (e.IsFolder)
         {
             var success = await _viewModel.NavigateToAsync(e.Path);
-            UpdatePathBox();
-            UpdateNavButtons();
+            UpdateNavigationUi();
 
             if (!success)
             {
@@ -76,16 +73,14 @@ public partial class MainPage : Page
     private async void OnBackClicked(object sender, RoutedEventArgs e)
     {
         var success = await _viewModel.GoBackAsync();
-        UpdatePathBox();
-        UpdateNavButtons();
+        UpdateNavigationUi();
         SetStatus(success ? "Navigated back." : "No previous location.");
     }
 
     private async void OnForwardClicked(object sender, RoutedEventArgs e)
     {
         var success = await _viewModel.GoForwardAsync();
-        UpdatePathBox();
-        UpdateNavButtons();
+        UpdateNavigationUi();
         SetStatus(success ? "Navigated forward." : "No forward location.");
     }
 
@@ -94,8 +89,7 @@ public partial class MainPage : Page
         if (e.Key == Windows.System.VirtualKey.Enter && !string.IsNullOrWhiteSpace(PathBox.Text))
         {
             var success = await _viewModel.NavigateToAsync(PathBox.Text);
-            UpdatePathBox();
-            UpdateNavButtons();
+            UpdateNavigationUi();
 
             if (!success)
             {
@@ -167,7 +161,27 @@ public partial class MainPage : Page
             await _viewModel.FileList.LoadAsync(currentPath);
         }
 
+        UpdateNavigationUi();
         SetStatus(result.Message);
+    }
+
+    private async void OnBreadcrumbClicked(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string targetPath })
+        {
+            return;
+        }
+
+        var success = await _viewModel.NavigateToAsync(targetPath);
+        UpdateNavigationUi();
+
+        if (!success)
+        {
+            SetStatus($"Unable to open location: {targetPath}", isError: true);
+            return;
+        }
+
+        SetStatus($"Opened {targetPath}.");
     }
 
     private void UpdatePathBox()
@@ -179,6 +193,46 @@ public partial class MainPage : Page
     {
         BackButton.IsEnabled = _viewModel.Navigation.CanGoBack;
         ForwardButton.IsEnabled = _viewModel.Navigation.CanGoForward;
+    }
+
+    private void UpdateBreadcrumbs()
+    {
+        BreadcrumbPanel.Children.Clear();
+
+        var breadcrumbs = _viewModel.Navigation.BreadcrumbItems;
+        if (breadcrumbs.Count == 0)
+        {
+            BreadcrumbPanel.Children.Add(new TextBlock { Text = "(no location)" });
+            return;
+        }
+
+        for (var i = 0; i < breadcrumbs.Count; i++)
+        {
+            var breadcrumb = breadcrumbs[i];
+            var button = new Button
+            {
+                Content = breadcrumb.Label,
+                Tag = breadcrumb.Path
+            };
+            button.Click += OnBreadcrumbClicked;
+            BreadcrumbPanel.Children.Add(button);
+
+            if (i < breadcrumbs.Count - 1)
+            {
+                BreadcrumbPanel.Children.Add(new TextBlock
+                {
+                    Text = ">",
+                    VerticalAlignment = VerticalAlignment.Center
+                });
+            }
+        }
+    }
+
+    private void UpdateNavigationUi()
+    {
+        UpdatePathBox();
+        UpdateNavButtons();
+        UpdateBreadcrumbs();
     }
 
     private void SetStatus(string message, bool isError = false)

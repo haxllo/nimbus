@@ -52,6 +52,11 @@ Scope:
 - Toolbar actions for New Folder, Rename, Delete, Refresh.
 - Keyboard shortcuts (`Alt+Left`, `Alt+Right`, `F2`, `Delete`, `Ctrl+F`).
 
+Status:
+- [x] Breadcrumb UI with clickable segments.
+- [ ] Toolbar actions for New Folder, Rename, Delete, Refresh.
+- [ ] Keyboard shortcuts (`Alt+Left`, `Alt+Right`, `F2`, `Delete`, `Ctrl+F`).
+
 Exit Criteria:
 - Full keyboard navigation for core actions.
 - Breadcrumb clicks navigate correctly and update history/list.
@@ -72,7 +77,7 @@ Exit Criteria:
 - File operations succeed in temp directories and provide actionable errors on failures.
 
 ## Immediate Next Tasks
-1. Implement breadcrumb segment control with click-to-navigate.
-2. Add keyboard shortcuts for core actions (`Alt+Left`, `Alt+Right`, `Delete`, `Ctrl+F`).
-3. Add targeted tests for rename/delete edge cases and cancellation behavior.
-4. Add operation confirmation/feedback UX polish (success toast and optional delete confirmation).
+1. Add keyboard shortcuts for core actions (`Alt+Left`, `Alt+Right`, `Delete`, `Ctrl+F`).
+2. Add targeted tests for rename/delete edge cases and cancellation behavior.
+3. Add operation confirmation/feedback UX polish (success toast and optional delete confirmation).
+4. Add New Folder and Rename toolbar actions.

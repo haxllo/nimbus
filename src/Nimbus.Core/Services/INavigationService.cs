@@ -1,3 +1,5 @@
+using Nimbus.Core.Models;
+
 namespace Nimbus.Core.Services;
 
 public interface INavigationService
@@ -10,4 +12,5 @@ public interface INavigationService
     void GoBack();
     void GoForward();
     IReadOnlyList<string> GetBreadcrumbSegments();
+    IReadOnlyList<BreadcrumbItem> GetBreadcrumbItems();
 }

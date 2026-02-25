@@ -1,4 +1,5 @@
 using Nimbus.Core.Services;
+using Nimbus.Core.Models;
 
 namespace Nimbus.Core.ViewModels;
 
@@ -18,6 +19,8 @@ public sealed class NavigationViewModel
     public bool CanGoForward => _navigationService.CanGoForward;
 
     public IReadOnlyList<string> BreadcrumbSegments => _navigationService.GetBreadcrumbSegments();
+
+    public IReadOnlyList<BreadcrumbItem> BreadcrumbItems => _navigationService.GetBreadcrumbItems();
 
     public void NavigateTo(string path) => _navigationService.NavigateTo(path);
 
