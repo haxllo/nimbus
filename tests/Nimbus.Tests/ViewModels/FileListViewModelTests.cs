@@ -104,6 +104,66 @@ public class FileListViewModelTests
         }
     }
 
+    [Fact]
+    public async Task SetSort_By_Size_Descending_Reorders_Files()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"nimbus-filelist-vm-sort-size-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempRoot);
+        await File.WriteAllTextAsync(Path.Combine(tempRoot, "small.txt"), "1");
+        await File.WriteAllTextAsync(Path.Combine(tempRoot, "large.txt"), new string('x', 20));
+
+        try
+        {
+            var viewModel = CreateViewModel();
+            await viewModel.LoadAsync(tempRoot);
+
+            viewModel.SetSort(FileSortField.Size, descending: true);
+            var files = viewModel.Items.Where(item => !item.IsFolder).ToArray();
+
+            Assert.Equal("large.txt", files[0].DisplayName);
+            Assert.Equal("small.txt", files[1].DisplayName);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
+
+    [Fact]
+    public async Task SetSort_By_Date_Ascending_Reorders_Files()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"nimbus-filelist-vm-sort-date-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempRoot);
+        var olderPath = Path.Combine(tempRoot, "older.txt");
+        var newerPath = Path.Combine(tempRoot, "newer.txt");
+        await File.WriteAllTextAsync(olderPath, "a");
+        await File.WriteAllTextAsync(newerPath, "b");
+        File.SetLastWriteTimeUtc(olderPath, DateTime.UtcNow.AddMinutes(-10));
+        File.SetLastWriteTimeUtc(newerPath, DateTime.UtcNow.AddMinutes(-1));
+
+        try
+        {
+            var viewModel = CreateViewModel();
+            await viewModel.LoadAsync(tempRoot);
+
+            viewModel.SetSort(FileSortField.DateModified, descending: false);
+            var files = viewModel.Items.Where(item => !item.IsFolder).ToArray();
+
+            Assert.Equal("older.txt", files[0].DisplayName);
+            Assert.Equal("newer.txt", files[1].DisplayName);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
+
     private static FileListViewModel CreateViewModel(ViewPreferenceService? preferenceService = null)
     {
         var shellItemService = new ShellItemService();

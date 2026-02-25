@@ -63,10 +63,13 @@
                     <x:String>Column</x:String>
                     <x:String>Gallery</x:String>
                 </ComboBox>
-                <ComboBox x:Name="SortSelector" Grid.Column="7" SelectedIndex="0" ToolTipService.ToolTip="Sort order">
-                    <x:String>Name</x:String>
-                    <x:String>Date Modified</x:String>
-                    <x:String>Size</x:String>
+                <ComboBox x:Name="SortSelector" Grid.Column="7" SelectionChanged="OnSortSelectionChanged" ToolTipService.ToolTip="Sort order">
+                    <x:String>Name (A-Z)</x:String>
+                    <x:String>Name (Z-A)</x:String>
+                    <x:String>Date Modified (Oldest)</x:String>
+                    <x:String>Date Modified (Newest)</x:String>
+                    <x:String>Size (Smallest)</x:String>
+                    <x:String>Size (Largest)</x:String>
                 </ComboBox>
                 <TextBox x:Name="PathBox" Grid.Column="8" Margin="12,0,12,0" PlaceholderText="Path" KeyDown="OnPathBoxKeyDown" />
                 <TextBox x:Name="SearchBox" Grid.Column="9" PlaceholderText="Search" KeyDown="OnSearchBoxKeyDown" ToolTipService.ToolTip="Search (Ctrl+F)" />

@@ -13,6 +13,8 @@ public sealed class FileListViewModel : INotifyPropertyChanged
     private readonly IFilePreviewService _filePreviewService;
     private string? _currentPath;
     private FileViewMode _currentViewMode = FileViewMode.List;
+    private FileSortField _currentSortField = FileSortField.Name;
+    private bool _isSortDescending;
     private ShellItemModel? _selectedItem;
     private FilePreviewModel? _currentPreview;
 
@@ -80,6 +82,36 @@ public sealed class FileListViewModel : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    public FileSortField CurrentSortField
+    {
+        get => _currentSortField;
+        private set
+        {
+            if (_currentSortField == value)
+            {
+                return;
+            }
+
+            _currentSortField = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool IsSortDescending
+    {
+        get => _isSortDescending;
+        private set
+        {
+            if (_isSortDescending == value)
+            {
+                return;
+            }
+
+            _isSortDescending = value;
+            OnPropertyChanged();
+        }
+    }
+
     public async Task LoadAsync(string path, CancellationToken cancellationToken = default)
     {
         _currentPath = path;
@@ -90,7 +122,20 @@ public sealed class FileListViewModel : INotifyPropertyChanged
         Items.Clear();
 
         var items = await _shellItemService.EnumerateAsync(path, cancellationToken);
-        foreach (var item in items)
+        foreach (var item in ApplySort(items))
+        {
+            Items.Add(item);
+        }
+    }
+
+    public void SetSort(FileSortField sortField, bool descending)
+    {
+        CurrentSortField = sortField;
+        IsSortDescending = descending;
+
+        var sorted = ApplySort(Items).ToArray();
+        Items.Clear();
+        foreach (var item in sorted)
         {
             Items.Add(item);
         }
@@ -130,6 +175,29 @@ public sealed class FileListViewModel : INotifyPropertyChanged
     public void ClearPreview()
     {
         CurrentPreview = null;
+    }
+
+    private IEnumerable<ShellItemModel> ApplySort(IEnumerable<ShellItemModel> source)
+    {
+        var ordered = source.OrderByDescending(item => item.IsFolder);
+
+        ordered = CurrentSortField switch
+        {
+            FileSortField.DateModified when IsSortDescending
+                => ordered.ThenByDescending(item => item.DateModified ?? DateTimeOffset.MinValue),
+            FileSortField.DateModified
+                => ordered.ThenBy(item => item.DateModified ?? DateTimeOffset.MinValue),
+            FileSortField.Size when IsSortDescending
+                => ordered.ThenByDescending(item => item.SizeBytes ?? -1),
+            FileSortField.Size
+                => ordered.ThenBy(item => item.SizeBytes ?? -1),
+            _ when IsSortDescending
+                => ordered.ThenByDescending(item => item.DisplayName, StringComparer.OrdinalIgnoreCase),
+            _
+                => ordered.ThenBy(item => item.DisplayName, StringComparer.OrdinalIgnoreCase)
+        };
+
+        return ordered.ThenBy(item => item.DisplayName, StringComparer.OrdinalIgnoreCase);
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>

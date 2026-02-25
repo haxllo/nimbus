@@ -309,6 +309,36 @@ public partial class MainPage : Page
         viewModel.FileList.SetViewModeForCurrentPath(selectedMode);
     }
 
+    private void OnSortSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is not MainPageViewModel viewModel)
+        {
+            return;
+        }
+
+        if (sender is not ComboBox comboBox)
+        {
+            return;
+        }
+
+        if (comboBox.SelectedIndex < 0)
+        {
+            return;
+        }
+
+        var (sortField, descending) = comboBox.SelectedIndex switch
+        {
+            1 => (FileSortField.Name, true),
+            2 => (FileSortField.DateModified, false),
+            3 => (FileSortField.DateModified, true),
+            4 => (FileSortField.Size, false),
+            5 => (FileSortField.Size, true),
+            _ => (FileSortField.Name, false)
+        };
+
+        viewModel.FileList.SetSort(sortField, descending);
+    }
+
     private async Task OpenNewTabAsync()
     {
         CancelActiveSearch();
@@ -904,6 +934,7 @@ public partial class MainPage : Page
     {
         UpdateTabStrip();
         UpdateViewModeSelector();
+        UpdateSortSelector();
         UpdatePathBox();
         UpdateNavButtons();
         UpdateBreadcrumbs();
@@ -922,6 +953,24 @@ public partial class MainPage : Page
         if (ViewModeSelector.SelectedIndex != selectedIndex)
         {
             ViewModeSelector.SelectedIndex = selectedIndex;
+        }
+    }
+
+    private void UpdateSortSelector()
+    {
+        var selectedIndex = (_viewModel.FileList.CurrentSortField, _viewModel.FileList.IsSortDescending) switch
+        {
+            (FileSortField.Name, true) => 1,
+            (FileSortField.DateModified, false) => 2,
+            (FileSortField.DateModified, true) => 3,
+            (FileSortField.Size, false) => 4,
+            (FileSortField.Size, true) => 5,
+            _ => 0
+        };
+
+        if (SortSelector.SelectedIndex != selectedIndex)
+        {
+            SortSelector.SelectedIndex = selectedIndex;
         }
     }
 
