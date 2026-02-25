@@ -26,6 +26,7 @@ public partial class MainPage : Page
         DataContext = _viewModel;
 
         Sidebar.LocationSelected += OnSidebarLocationSelected;
+        Sidebar.SavedSearchSelected += OnSidebarSavedSearchSelected;
         FileList.ItemInvoked += OnFileItemInvoked;
         FileList.ItemSelectionChanged += OnFileItemSelectionChanged;
         Unloaded += OnPageUnloaded;
@@ -71,6 +72,22 @@ public partial class MainPage : Page
 
             SetStatus($"Opened {e.DisplayName}.", InfoBarSeverity.Success);
         }
+    }
+
+    private async void OnSidebarSavedSearchSelected(object? sender, SavedSearchModel savedSearch)
+    {
+        CancelActiveSearch();
+
+        var opened = await _viewModel.NavigateToAsync(savedSearch.RootPath);
+        UpdateNavigationUi();
+        if (!opened)
+        {
+            SetStatus($"Unable to open saved-search location: {savedSearch.RootPath}", InfoBarSeverity.Error);
+            return;
+        }
+
+        SearchBox.Text = savedSearch.Query;
+        await ExecuteSearchAsync(savedSearch.RootPath, savedSearch.Query, savedSearch.DisplayName);
     }
 
     private void OnFileItemSelectionChanged(object? sender, EventArgs e)
@@ -290,8 +307,23 @@ public partial class MainPage : Page
             return;
         }
 
+        await ExecuteSearchAsync(root, query);
+    }
+
+    private async Task ExecuteSearchAsync(string root, string query, string? sourceLabel = null)
+    {
+        if (string.IsNullOrWhiteSpace(root) || string.IsNullOrWhiteSpace(query))
+        {
+            SetStatus("Enter a search term after opening a folder.", InfoBarSeverity.Warning);
+            return;
+        }
+
         var searchCancellation = StartSearch();
-        SetStatus($"Searching \"{query}\"...", InfoBarSeverity.Informational);
+        SetStatus(
+            string.IsNullOrWhiteSpace(sourceLabel)
+                ? $"Searching \"{query}\"..."
+                : $"Running \"{sourceLabel}\"...",
+            InfoBarSeverity.Informational);
 
         try
         {
