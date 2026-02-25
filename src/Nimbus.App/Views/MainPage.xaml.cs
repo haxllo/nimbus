@@ -178,6 +178,16 @@ public partial class MainPage : Page
 
     private void OnViewModeSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (DataContext is not MainPageViewModel viewModel)
+        {
+            return;
+        }
+
+        if (ViewModeSelector.SelectedIndex < 0)
+        {
+            return;
+        }
+
         var selectedMode = ViewModeSelector.SelectedIndex switch
         {
             1 => FileViewMode.Icon,
@@ -186,7 +196,7 @@ public partial class MainPage : Page
             _ => FileViewMode.List
         };
 
-        _viewModel.FileList.SetViewModeForCurrentPath(selectedMode);
+        viewModel.FileList.SetViewModeForCurrentPath(selectedMode);
     }
 
     private async Task NavigateBackAsync()
